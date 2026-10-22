@@ -1,0 +1,904 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"></head><body>
+<title>Oakwoods MAR Demo</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap">
+<style>
+/* Layout: a tablet-first staff app. Dark app bar, demo banner, one working view at a time. */
+:root{
+  --bg:#F4F7F8; --surface:#FFFFFF; --sunk:#EEF2F3; --fg:#17262B; --muted:#4A5A60; --line:#D5DDE0;
+  --bar:#17262B; --bar-fg:#FFFFFF; --bar-muted:#C9D4D7;
+  --accent:#1F5C68; --accent-fg:#FFFFFF; --accent-soft:#E3EEF1;
+  --ok:#1E5631; --ok-bg:#E6F2EA; --ok-line:#2E7D47;
+  --warn:#5C3B00; --warn-bg:#FDE7C2; --warn-line:#8A5A00;
+  --due:#123F73; --due-bg:#EAF2FC; --due-line:#1D5FA8;
+  --refuse:#7A3606; --refuse-bg:#FFF1E6; --refuse-line:#B8530F;
+  --danger:#7A1F1F; --danger-line:#A33A3A;
+  --demo:#4A2E7A; --demo-bg:#EFE9FA;
+  --font:'Atkinson Hyperlegible', Verdana, Arial, sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0F1A1D; --surface:#17262B; --sunk:#1D3036; --fg:#E8EEF0; --muted:#A9B8BD; --line:#2E444B;
+  --bar:#0A1214; --bar-fg:#E8EEF0; --bar-muted:#A9B8BD;
+  --accent:#5FB3C2; --accent-fg:#0A1F24; --accent-soft:#1C3A41;
+  --ok:#9FD9B0; --ok-bg:#16352193; --ok-line:#4FA86A;
+  --warn:#F7D08A; --warn-bg:#3D2C0C; --warn-line:#C99232;
+  --due:#A9CCF5; --due-bg:#152A44; --due-line:#5B95D6;
+  --refuse:#F5B98C; --refuse-bg:#3A2213; --refuse-line:#D27A3C;
+  --danger:#F2A3A3; --danger-line:#C96060;
+  --demo:#D6C6F5; --demo-bg:#2A2140; color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --bg:#0F1A1D; --surface:#17262B; --sunk:#1D3036; --fg:#E8EEF0; --muted:#A9B8BD; --line:#2E444B;
+  --bar:#0A1214; --bar-fg:#E8EEF0; --bar-muted:#A9B8BD;
+  --accent:#5FB3C2; --accent-fg:#0A1F24; --accent-soft:#1C3A41;
+  --ok:#9FD9B0; --ok-bg:#16352193; --ok-line:#4FA86A;
+  --warn:#F7D08A; --warn-bg:#3D2C0C; --warn-line:#C99232;
+  --due:#A9CCF5; --due-bg:#152A44; --due-line:#5B95D6;
+  --refuse:#F5B98C; --refuse-bg:#3A2213; --refuse-line:#D27A3C;
+  --danger:#F2A3A3; --danger-line:#C96060;
+  --demo:#D6C6F5; --demo-bg:#2A2140; color-scheme:dark;
+}
+html,body{height:100%}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--fg);font-family:var(--font);font-size:17px;line-height:1.45}
+*{box-sizing:border-box}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--due-line);outline-offset:2px}
+.wrap{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.bar{background:var(--bar);color:var(--bar-fg)}
+.bar .wrap{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px 16px;padding-block:12px}
+.brand{font-weight:700;font-size:19px}
+.who{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.who small{color:var(--bar-muted)}
+.demo-band{background:var(--demo-bg);color:var(--demo);border-bottom:1px solid var(--line)}
+.demo-band .wrap{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;justify-content:space-between;padding-block:8px;font-size:15px}
+.demo-band label{display:flex;gap:8px;align-items:center;font-weight:700}
+.paper-band{background:var(--accent-soft);border-bottom:1px solid var(--line)}
+.paper-band .wrap{padding-block:9px;font-size:16px}
+main{max-width:1240px;margin:0 auto;padding-block:18px 40px}
+nav.tabs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:10px 18px;border-radius:10px;border:2px solid var(--line);background:var(--surface);font-weight:700;cursor:pointer;text-decoration:none}
+.btn:hover{border-color:var(--muted)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-fg)}
+.btn.danger{color:var(--danger);border-color:var(--danger-line)}
+.btn.ghost-light{background:transparent;color:var(--bar-fg);border-color:#5B6C72}
+.btn[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-fg)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn.small{min-height:40px;padding:6px 12px;font-size:15px}
+h1{font-size:26px;margin:0;text-wrap:balance}
+h2{font-size:15px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:18px 0 8px}
+.row{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between}
+.muted{color:var(--muted)}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px}
+.counts{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin:14px 0}
+.count{border-radius:12px;padding:12px 16px;border:1px solid var(--line);background:var(--surface)}
+.count b{display:block;font-size:30px;font-variant-numeric:tabular-nums}
+.count.warn{background:var(--warn-bg);border:2px solid var(--warn-line);color:var(--warn)}
+.count.due{background:var(--due-bg);border:2px solid var(--due-line);color:var(--due)}
+.list{display:flex;flex-direction:column;gap:8px}
+.item{display:grid;grid-template-columns:72px minmax(0,1.1fr) minmax(0,1.6fr) auto;gap:12px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 16px;text-align:left;width:100%;cursor:pointer}
+.item.warn{border:2px solid var(--warn-line)} .item.due{border:2px solid var(--due-line)} .item.up{border-style:dashed}
+.item .t{font-size:21px;font-weight:700;font-variant-numeric:tabular-nums}
+@media (max-width:720px){.item{grid-template-columns:60px minmax(0,1fr)}.item>:nth-child(3),.item>:nth-child(4){grid-column:2}}
+.pill{display:inline-flex;align-items:center;gap:6px;border-radius:8px;padding:6px 10px;font-weight:700;font-size:15px;white-space:nowrap}
+.pill.warn{background:var(--warn-bg);color:var(--warn)} .pill.due{background:var(--due-bg);color:var(--due)}
+.pill.ok{background:var(--ok-bg);color:var(--ok)} .pill.refuse{background:var(--refuse-bg);color:var(--refuse)}
+.pill.plain{background:var(--sunk);color:var(--muted)}
+.ident{display:flex;flex-wrap:wrap;gap:14px;align-items:center;justify-content:space-between;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin-bottom:14px}
+.ident.sticky{position:sticky;top:env(safe-area-inset-top,0px);z-index:5}
+.avatar{width:56px;height:56px;border-radius:50%;background:var(--accent-soft);color:var(--accent);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:20px;flex:none}
+.allergy{border-radius:10px;padding:8px 14px;font-weight:700;border:2px solid}
+.allergy.nka{background:var(--ok-bg);color:var(--ok);border-color:var(--ok-line)}
+.allergy.unknown{background:var(--warn-bg);color:var(--warn);border-color:var(--warn-line)}
+.allergy.has{background:var(--refuse-bg);color:var(--danger);border-color:var(--danger-line)}
+.gridbox{overflow-x:auto;border:1px solid var(--line);border-radius:14px;background:var(--surface)}
+table.mar{border-collapse:collapse;width:100%;min-width:720px}
+table.mar th,table.mar td{border-bottom:1px solid var(--line);border-left:1px solid var(--line);padding:8px;vertical-align:middle}
+table.mar th:first-child,table.mar td:first-child{border-left:0}
+table.mar thead th{background:var(--sunk);font-size:18px;font-variant-numeric:tabular-nums}
+table.mar td.med{min-width:260px}
+.med b{display:block;font-size:18px}
+.cell{width:100%;min-height:70px;border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-weight:700;cursor:pointer;border:2px solid transparent;padding:6px;text-align:center}
+.cell small{font-weight:400;font-size:14px}
+.cell.given{background:var(--accent);color:var(--accent-fg)}
+.cell.refused{background:var(--refuse-bg);color:var(--refuse);border-color:var(--refuse-line)}
+.cell.due{background:var(--due-bg);color:var(--due);border:3px solid var(--due-line)}
+.cell.warn{background:var(--warn-bg);color:var(--warn);border-color:var(--warn-line)}
+.cell.up{background:var(--surface);color:var(--muted);border:2px dashed var(--line)}
+.none{color:var(--muted);font-size:14px;text-align:center}
+.badge-pending{display:inline-block;margin-top:6px;background:var(--warn-bg);color:var(--warn);border-radius:6px;padding:3px 8px;font-size:14px;font-weight:700}
+.legend{display:flex;flex-wrap:wrap;gap:14px;font-size:15px;color:var(--muted);margin-top:10px}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.sw{width:16px;height:16px;border-radius:4px;display:inline-block;border:2px solid}
+.two{display:grid;grid-template-columns:minmax(0,380px) minmax(0,1fr);gap:18px}
+@media (max-width:860px){.two{grid-template-columns:minmax(0,1fr)}}
+form{display:flex;flex-direction:column;gap:16px}
+fieldset{border:0;margin:0;padding:0}
+legend,.lbl{font-weight:700;margin-bottom:8px;display:block}
+.seg{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px}
+.fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
+label.f{display:flex;flex-direction:column;gap:6px;font-weight:700;font-size:16px}
+input[type=text],input[type=time],select,textarea{border:2px solid var(--line);border-radius:10px;padding:10px 12px;background:var(--surface);min-height:48px;font-weight:400}
+textarea{min-height:80px;resize:vertical}
+.check{display:flex;gap:12px;align-items:flex-start;background:var(--sunk);border-radius:10px;padding:12px 14px;font-weight:400}
+.check input{width:26px;height:26px;flex:none;accent-color:var(--accent);margin:0}
+.note{background:var(--accent-soft);border-radius:10px;padding:12px 14px;font-size:16px}
+.alert{border-radius:10px;padding:12px 14px;font-weight:700;border:2px solid}
+.alert.warn{background:var(--warn-bg);color:var(--warn);border-color:var(--warn-line)}
+.alert.err{background:var(--refuse-bg);color:var(--danger);border-color:var(--danger-line)}
+.alert.ok{background:var(--ok-bg);color:var(--ok);border-color:var(--ok-line)}
+.kv{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.kv div{background:var(--sunk);border-radius:10px;padding:10px 12px}
+.kv small{display:block;color:var(--muted)}
+.hrow{display:grid;grid-template-columns:70px minmax(0,1fr) minmax(0,1.2fr) minmax(0,1.2fr) 230px;gap:12px;align-items:center;padding:12px 16px;border-bottom:1px solid var(--line)}
+.hrow.head{background:var(--sunk);font-weight:700;color:var(--muted);font-size:15px}
+.hrow.miss{background:var(--warn-bg)}
+@media (max-width:860px){.hrow{grid-template-columns:60px minmax(0,1fr)}.hrow>:nth-child(n+3){grid-column:2}.hrow.head{display:none}}
+.progress{height:12px;background:var(--sunk);border-radius:6px;overflow:hidden;flex:1;min-width:120px}
+.progress i{display:block;height:100%;background:var(--accent)}
+.letter{border:1px solid var(--line);border-radius:10px;background:var(--sunk);min-height:220px;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.letter img{max-width:100%;max-height:480px;display:block}
+.cmp{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.cmp>div{border-radius:10px;padding:12px 14px;background:var(--sunk)}
+.cmp>div.new{background:var(--accent-soft);border:2px solid var(--accent)}
+.log{display:flex;flex-direction:column}
+.log div{display:grid;grid-template-columns:70px 170px minmax(0,1fr);gap:12px;padding:10px 0;border-bottom:1px solid var(--line);font-size:16px}
+@media (max-width:720px){.log div{grid-template-columns:60px minmax(0,1fr)}.log div>:nth-child(3){grid-column:2}}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(20px + env(safe-area-inset-bottom,0px));background:var(--fg);color:var(--bg);padding:12px 20px;border-radius:12px;font-weight:700;z-index:20;max-width:calc(100% - 32px)}
+.pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:12px}
+.pcard{display:flex;flex-direction:column;align-items:flex-start;gap:10px;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;cursor:pointer;min-height:44px}
+.pcard:hover{border-color:var(--muted)}
+.pcard.warn{border:2px solid var(--warn-line)} .pcard.due{border:2px solid var(--due-line)}
+.pc-top{display:flex;gap:12px;align-items:center;width:100%}
+.pc-top>span:last-child{display:flex;flex-direction:column}
+.pc-name{font-size:20px}
+.pc-lines{font-size:16px;line-height:1.5}
+.users{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.users button{text-align:left;padding:16px;border-radius:12px;border:2px solid var(--line);background:var(--surface);cursor:pointer}
+.users button b{display:block;font-size:19px}
+@media print{.bar,.demo-band,.paper-band,nav.tabs,.noprint,.toast{display:none!important}body{background:#fff;color:#000}.panel{border:1px solid #999}.medsheet{break-after:page}.gridbox{overflow:visible}table.mar{min-width:0}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="bar"><div class="wrap">
+  <div class="brand">Ardington House · Medication</div>
+  <div class="who"><span>Signed in: <strong id="who-name"></strong> <small id="who-role"></small></span>
+    <button class="btn ghost-light small" data-act="signin" type="button">Switch user</button></div>
+</div></div>
+<div class="demo-band"><div class="wrap">
+  <span><strong>Demonstration.</strong> Fictional people and medicines. Not a medication record. Nothing is saved when you reload.</span>
+  <span style="display:flex;gap:12px;flex-wrap:wrap;align-items:center">
+    <label for="clock">Demo time
+      <select id="clock"></select></label>
+    <button class="btn small" data-act="reset" type="button">Reset demo</button>
+  </span>
+</div></div>
+<div class="paper-band"><div class="wrap"><strong>The paper MAR is the official record.</strong> Sign the paper chart first, then confirm the entry here.</div></div>
+
+<main class="wrap" id="app"></main>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.2/dist/jspdf.plugin.autotable.min.js"></script>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+(function(){
+const WINDOW=60;              // demo placeholder: minutes either side of the due time. Real values per medicine come from the medicines lead.
+const DAY_END=20*60;
+const LIQ_TOL=10;            // demo placeholder: ml difference allowed when reading a bottle. Real value from the medicines lead.          // demo placeholder: day shift ends 20:00
+const USERS=[
+  {id:'ts1',name:'Test Staff 1',init:'TS1',role:'Day staff'},
+  {id:'ts2',name:'Test Staff 2',init:'TS2',role:'Day staff'},
+  {id:'tn1',name:'Test Night Staff 1',init:'TN1',role:'Night staff'},
+  {id:'rm',name:'Registered Manager',init:'RM',role:'Manager',approver:true},
+  {id:'dm',name:'Deputy Manager',init:'DM',role:'Manager',approver:true},
+];
+// Outcome codes follow the key on the Oakwoods CM11 paper MAR. "uses" = the dose comes out of stock.
+const OUTCOMES=[
+  {code:'Given',label:'Given',short:'Given',uses:true},
+  {code:'R',label:'R · Refused & destroyed',short:'R · Refused',uses:true},
+  {code:'H',label:'H · Hospital',short:'H · Hospital',uses:false},
+  {code:'V',label:'V · Vomit / nausea',short:'V · Vomit',uses:true},
+  {code:'S',label:'S · Social leave',short:'S · Leave',uses:false},
+  {code:'N',label:'N · No stock',short:'N · No stock',uses:false},
+  {code:'W',label:'W · Withheld (authorised)',short:'W · Withheld',uses:false},
+  {code:'O',label:'O · Other (see notes)',short:'O · Other',uses:true},
+];
+const OC=c=>OUTCOMES.find(o=>o.code===c)||OUTCOMES[0];
+let S, view, now, user;
+
+function seed(){
+  S={
+    people:[
+      {id:'P-0001',name:'Test Person Alpha',dob:'01/01/1990',init:'TA',allergy:'nka',mar:{start:'19/10/26',startDay:19,sheets:1}},
+      {id:'P-0002',name:'Test Person Bravo',dob:'02/02/1992',init:'TB',allergy:'unknown',mar:{start:'19/10/26',startDay:19,sheets:1}},
+      {id:'P-0003',name:'Test Person Charlie',dob:'03/03/1985',init:'TC',allergy:'has',allergyDetail:'Fictorin: rash',mar:{start:'19/10/26',startDay:19,sheets:1}},
+      {id:'P-0004',name:'Test Person Delta',dob:'04/04/1998',init:'TD',allergy:'nka',mar:{start:'19/10/26',startDay:19,sheets:1}},
+    ],
+    plans:[
+      P('ORD-01',1,'P-0001','Testamol','500 mg tablet','Oral','Swallow with water',{'08:00':1,'20:00':1},'tablet'),
+      P('ORD-02',1,'P-0001','Calmexil','5 mg in 5 ml oral solution','Oral','Measure with oral syringe',{'08:00':10},'ml'),
+      P('ORD-03',1,'P-0001','Dormanol','20 mg capsule','Oral','',{'13:00':1,'18:00':1},'capsule'),
+      P('ORD-04',1,'P-0002','Placebrine','10 mg tablet','Oral','',{'08:00':1,'20:00':2},'tablet'),
+      P('ORD-05',1,'P-0003','Calmexil','5 mg in 5 ml oral solution','Oral','',{'09:00':5},'ml'),
+      P('ORD-06',1,'P-0003','Testamol','500 mg tablet','Oral','',{'13:00':1},'tablet'),
+      P('ORD-07',1,'P-0004','Dormanol','20 mg capsule','Oral','1 in the morning, 1 in the afternoon, 2 in the evening',{'08:00':1,'13:00':1,'18:00':2},'capsule'),
+    ],
+    // Stock per medicine (kept across prescription versions). cf = carried forward from the previous sheet.
+    stock:{'ORD-02':{liquid:true,cf:150,unopened:[200],moves:[]},'ORD-05':{liquid:true,cf:100,unopened:[],moves:[]},'ORD-01':{cf:28,moves:[]},'ORD-03':{cf:14,moves:[]},'ORD-04':{cf:20,moves:[]},'ORD-06':{cf:16,moves:[]},'ORD-07':{cf:12,moves:[]}},
+    slots:[], log:[], events:[], changes:[], seq:0,
+    handover:{handedBy:null,handedAt:null,signs:{},done:null},
+  };
+  S.plans.forEach(p=>p.times.forEach(t=>addSlot(p,t)));
+  S.seeds=[
+    ['P-0001|ORD-01|08:00','Given','ts1','08:04','','',  '',480+4,1,27],
+    ['P-0001|ORD-02|08:00','R','ts1','08:10','','','Declined, offered again 08:40, declined again. Dose destroyed.',480+12,10,140],
+    ['P-0002|ORD-04|08:00','Given','ts2','08:05','','','',480+15,1,18],   // expected 19: demo stock discrepancy
+    ['P-0003|ORD-05|09:00','Given','ts1','09:02','','','',540+4,5,95],
+  ];
+  applySeeds();
+  // Delta 08:00 deliberately left with no entry
+  log(480,'System','Doses for Sun 25 Oct created from current prescriptions');
+}
+function applySeeds(){S.seeds=S.seeds.filter(x=>{if(x[7]<=now){rec(...x);return false;}return true;});}
+function P(order,v,pid,name,strength,route,instr,sched,unit){
+  const times=Object.keys(sched).sort((a,b)=>mins(a)-mins(b));
+  const qs=times.map(t=>sched[t]);
+  const dose=qs.every(q=>q===qs[0])?doseUnit(qs[0],unit):times.map(t=>doseUnit(sched[t],unit)+' at '+t).join(', ');
+  return {order,v,vid:order+'-v'+v,pid,name,strength,route,instr,sched,times,unit,dose,state:'Current'};
+}
+function doseUnit(q,unit){return unit==='ml'?q+' ml':q+' '+unit+(Number(q)===1?'':'s');}
+const doseAtSlot=s=>{const pl=planOf(s);return doseUnit(pl.sched[s.time],pl.unit);};
+// Running stock: carried forward + received - returned - used; each entered count resets the balance to what was counted.
+// Liquids: the bottle in use (approximate level) plus each unopened bottle (exact).
+function liquidState(order){
+  const st=S.stock[order];
+  const ev=[...st.moves.map(m=>({...m,k:m.type})),...S.slots.filter(s=>s.order===order&&s.entry).map(s=>({at:s.entry.at,seq:s.entry.seq,k:'entry',q:s.entry.used||0,c:s.entry.count}))].sort((a,b)=>a.at-b.at||a.seq-b.seq);
+  let inUse=st.cf,unopened=[...st.unopened],openedAt=null,openedBy=null;
+  ev.forEach(e=>{
+    if(e.k==='received')for(let i=0;i<e.qty;i++)unopened.push(e.vol);
+    else if(e.k==='returned')for(let i=0;i<e.qty;i++){const j=unopened.indexOf(e.vol);if(j>=0)unopened.splice(j,1);}
+    else if(e.k==='opened'){const j=unopened.indexOf(e.vol);if(j>=0)unopened.splice(j,1);inUse=e.vol;openedAt=e.at;openedBy=e.by;}
+    else if(e.k==='entry'&&inUse!=null){inUse-=e.q;if(e.c!=null)inUse=e.c;}
+  });
+  return {inUse,unopened,openedAt,openedBy};
+}
+function balance(order){
+  const st=S.stock[order];if(!st)return null;
+  if(st.liquid)return liquidState(order).inUse;
+  const ev=[...st.moves.map(m=>({at:m.at,seq:m.seq,k:m.type,q:m.qty})),...S.slots.filter(s=>s.order===order&&s.entry).map(s=>({at:s.entry.at,seq:s.entry.seq,k:'entry',q:s.entry.used||0,c:s.entry.count}))].sort((a,b)=>a.at-b.at||a.seq-b.seq);
+  let bal=st.cf;
+  ev.forEach(e=>{if(st.liquid){if(e.k==='opened')bal=e.q;else if(e.k==='entry'){bal-=e.q;if(e.c!=null)bal=e.c;}}
+    else if(e.k==='received')bal+=e.q;else if(e.k==='returned')bal-=e.q;else if(e.k==='entry'){bal-=e.q;if(e.c!=null)bal=e.c;}});
+  return bal;
+}
+const isFlag=(order,c,e)=>c!=null&&e!=null&&(S.stock[order]&&S.stock[order].liquid?Math.abs(c-e)>LIQ_TOL:c!==e);
+const stockUnit=pl=>S.stock[pl.order]&&S.stock[pl.order].liquid?'bottles':pl.unit+'s';
+// The CM11 holds 4 medicines per page. Position follows the order medicines were written onto the sheet.
+const DEMO_DAY=25;
+function paperRef(s,alt){
+  if(alt)return 'Other location: '+alt;
+  const p=person(s.pid),pl=planOf(s),orders=[...new Set(S.plans.filter(x=>x.pid===s.pid).map(x=>x.order))],i=orders.indexOf(pl.order);
+  const week=Math.floor((DEMO_DAY-p.mar.startDay)/7)+1;
+  return `CM11 · started ${p.mar.start} · Sheet 1 of ${p.mar.sheets} · Page ${Math.floor(i/4)+1} · Medicine ${i%4+1} (${pl.name}) · ${s.time} row · Week ${week}, column 25 (Sun 25 Oct)`;
+}
+const stockFlags=pid=>S.slots.filter(s=>s.pid===pid&&s.entry&&s.entry.stockFlag);
+function addSlot(p,t){
+  const key=p.pid+'|'+p.order+'|'+t;
+  if(S.slots.some(s=>s.key===key&&!s.superseded))return;
+  S.slots.push({id:key+'|'+p.vid,key,pid:p.pid,order:p.order,vid:p.vid,time:t,entry:null,superseded:false});
+}
+function rec(key,outcome,uid,actual,chart,row,notes,at,used,count){
+  const s=S.slots.find(x=>x.key===key&&!x.superseded);
+  const expected=S.stock[s.order]&&count!=null?balance(s.order)-used:null;
+  s.entry={outcome,by:uid,actual,chart:paperRef(s),row:'confirmed',notes,at,used,count,expected,seq:++S.seq,stockFlag:isFlag(s.order,count,expected)};
+}
+const mins=t=>{const [h,m]=t.split(':').map(Number);return h*60+m;};
+const fmt=m=>String(Math.floor(m/60)).padStart(2,'0')+':'+String(m%60).padStart(2,'0');
+const h=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const U=id=>USERS.find(u=>u.id===id)||{name:id,init:id};
+const person=id=>S.people.find(p=>p.id===id);
+const planOf=s=>S.plans.find(p=>p.vid===s.vid);
+function log(at,who,text){S.log.unshift({at,who,text});}
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.hidden=false;clearTimeout(toast._t);toast._t=setTimeout(()=>t.hidden=true,3200);}
+
+function status(s){
+  if(s.superseded)return 'superseded';
+  if(s.entry)return 'recorded';
+  const t=mins(s.time);
+  if(now<t-WINDOW)return 'up';
+  if(now<=t+WINDOW)return 'due';
+  return 'warn';
+}
+const live=()=>S.slots.filter(s=>!s.superseded);
+const pendingFor=order=>S.changes.find(c=>c.order===order&&c.status==='Pending approval');
+
+function outcomeCls(o){return o==='Given'?'given':'refused';}
+
+// ---------- views
+function render(){
+  document.getElementById('who-name').textContent=user.name;
+  document.getElementById('who-role').textContent='('+user.role+')';
+  const app=document.getElementById('app');
+  const v=view.name;
+  let html=tabs();
+  if(v==='signin')html=signinView();
+  else if(v==='today')html+=todayView();
+  else if(v==='person')html+=personView(view.pid);
+  else if(v==='record')html+=recordView(view.slot);
+  else if(v==='report')html+=reportView(view.pid);
+  else if(v==='handover')html+=handoverView();
+  else if(v==='change')html+=changeView(view.pid);
+  else if(v==='approvals')html+=approvalsView();
+  else if(v==='approval')html+=approvalView(view.id);
+  else if(v==='log')html+=logView();
+  else if(v==='stock')html+=stockView(view.pid,view.mode);
+  else if(v==='medlist')html+=medListView(view.pid);
+  app.innerHTML=html;
+  if(v==='medlist')initPads();
+  window.scrollTo(0,0);
+}
+function tabs(){
+  const pend=S.changes.filter(c=>c.status==='Pending approval').length;
+  const t=(n,l)=>`<button class="btn small" type="button" data-act="go" data-view="${n}" aria-pressed="${view.name===n}">${l}</button>`;
+  return `<nav class="tabs" aria-label="Sections">${t('today','Today')}${t('handover','Handover')}${t('medlist','Medication list')}${user.approver?t('approvals','Approvals'+(pend?' ('+pend+')':'')):''}${user.approver?t('log','Activity log'):''}</nav>`;
+}
+function signinView(){
+  return `<h1>Who is using this tablet?</h1><p class="muted">Each person signs in with their own account. In the demo, pick a role.</p>
+  <div class="users">${USERS.map(u=>`<button type="button" data-act="as" data-id="${u.id}"><b>${h(u.name)}</b><span class="muted">${h(u.role)}${u.approver?' · can approve prescription changes':''}</span></button>`).join('')}</div>`;
+}
+function todayView(){
+  const ls=live();
+  const by=st=>ls.filter(s=>status(s)===st).sort((a,b)=>mins(a.time)-mins(b.time));
+  const warn=by('warn'),due=by('due'),up=by('up'),done=by('recorded');
+  const item=(s,cls,pill)=>{const p=person(s.pid),pl=planOf(s);return `<button type="button" class="item ${cls}" data-act="person" data-pid="${p.id}">
+    <span class="t">${s.time}</span><span><b>${h(p.name)}</b><br><span class="muted">${p.id}${p.allergy==='has'?' · Allergies recorded':p.allergy==='unknown'?' · Allergy status unknown':''}</span></span>
+    <span>${h(pl.name)} ${h(pl.strength)} · ${h(pl.dose)} · ${h(pl.route)}${pendingFor(pl.order)?'<br><span class="badge-pending">Change pending approval</span>':''}</span>${pill}</button>`;};
+  const sec=(title,arr,cls,pill)=>arr.length?`<h2>${title}</h2><div class="list">${arr.map(s=>item(s,cls,pill)).join('')}</div>`:'';
+  const meds=S.people.map(p=>{const mine=ls.filter(s=>s.pid===p.id).sort((a,b)=>mins(a.time)-mins(b.time));
+    const w=mine.filter(s=>status(s)==='warn'),d=mine.filter(s=>status(s)==='due'),u=mine.filter(s=>status(s)==='up'),r=mine.filter(s=>status(s)==='recorded');
+    return {p,mine,w,d,u,r,rank:w.length?0:d.length?1:u.length?2:3};}).filter(x=>x.mine.length).sort((a,b)=>a.rank-b.rank||(a.mine[0]&&b.mine[0]?0:0));
+  const nm=s=>{const pl=planOf(s);return h(pl.name)+' '+s.time;};
+  const card=x=>{const p=x.p,cls=x.w.length?'warn':x.d.length?'due':'';
+    const state=x.w.length?`<span class="pill warn">${x.w.length} not recorded: check</span>`:x.d.length?`<span class="pill due">Due now</span>`:x.u.length?`<span class="pill plain">Next ${x.u[0].time}</span>`:`<span class="pill ok">All recorded today</span>`;
+    const lines=[x.w.length?'<b>Not recorded:</b> '+x.w.map(nm).join(', '):'',x.d.length?'<b>Due now:</b> '+x.d.map(nm).join(', '):'',x.u.length?'<b>Next:</b> '+nm(x.u[0]):''].filter(Boolean).join('<br>');
+    const pend=S.plans.some(pl=>pl.pid===p.id&&pendingFor(pl.order));
+    return `<button type="button" class="pcard ${cls}" data-act="person" data-pid="${p.id}">
+      <span class="pc-top"><span class="avatar">${p.init}</span><span style="min-width:0"><b class="pc-name">${h(p.name)}</b><span class="muted">${p.id}</span></span></span>
+      <span class="allergy ${p.allergy==='nka'?'nka':p.allergy==='unknown'?'unknown':'has'}" style="font-size:15px;padding:5px 10px">${allergyText(p)}</span>
+      <span>${state}${pend?' <span class="badge-pending">Change pending approval</span>':''}${stockFlags(p.id).length?' <span class="pill warn">Stock check needed</span>':''}${x.mine.some(s=>s.entry&&s.entry.outcome==='N')?' <span class="pill warn">No stock</span>':''}</span>
+      <span class="pc-lines">${lines||'<span class="muted">No more doses today</span>'}</span>
+      <span class="muted" style="font-size:15px">${x.r.length} of ${x.mine.length} doses recorded today</span></button>`;};
+  return `<div class="row"><div><h1>Sunday 25 October · ${now<DAY_END?'Day shift':'Night shift'}</h1>
+    <div class="muted">Updated ${fmt(now)} · Reminders working · ${meds.length} people need medication today</div></div>
+    <button class="btn primary" type="button" data-act="go" data-view="handover">${now<DAY_END?'Start handover to night shift':'Night handover'}</button></div>
+  <h2>People who need medication today</h2>
+  <div class="pgrid">${meds.map(card).join('')}</div>
+  <h2 style="margin-top:28px">Doses by time</h2>
+  ${sec('Needs attention',warn,'warn','<span class="pill warn">Not recorded: check</span>')}
+  ${sec('Due now',due,'due','<span class="pill due">Due now</span>')}
+  ${sec('Coming up',up,'up','<span class="pill plain">Upcoming</span>')}
+  ${!warn.length&&!due.length&&!up.length?'<div class="panel">No doses outstanding right now. Recorded doses are on each person\'s chart.</div>':''}`;
+}
+function allergyText(p){return p.allergy==='nka'?'No known allergies':p.allergy==='unknown'?'Allergy status unknown':'Allergies: '+h(p.allergyDetail);}
+function ident(p,sticky){
+  const cls=p.allergy==='nka'?'nka':p.allergy==='unknown'?'unknown':'has';
+  return `<div class="ident${sticky?' sticky':''}"><div style="display:flex;gap:14px;align-items:center"><span class="avatar">${p.init}</span><div><div style="font-size:24px;font-weight:700">${h(p.name)}</div><div class="muted">Date of birth ${p.dob} · ID ${p.id}</div></div></div>
+  <div class="allergy ${cls}">${allergyText(p)}</div></div>`;
+}
+function personView(pid){
+  const p=person(pid);
+  const plans=S.plans.filter(x=>x.pid===pid&&x.state==='Current');
+  const times=[...new Set(live().filter(s=>s.pid===pid).map(s=>s.time))].sort((a,b)=>mins(a)-mins(b));
+  const cell=s=>{
+    if(!s)return '<div class="none">Not prescribed</div>';
+    const st=status(s);
+    if(st==='recorded'){const e=s.entry;return `<button type="button" class="cell ${outcomeCls(e.outcome)}" data-act="slot" data-id="${h(s.id)}">${h(OC(e.outcome).short)}<small>${U(e.by).init} · ${h(e.actual||'')}${e.count!=null?' · count '+e.count:''}</small>${e.stockFlag?'<small><b>Stock check needed</b></small>':''}</button>`;}
+    if(st==='due')return `<button type="button" class="cell due" data-act="slot" data-id="${h(s.id)}">Due now<small>${h(doseAtSlot(s))} · tap to confirm</small></button>`;
+    if(st==='warn')return `<button type="button" class="cell warn" data-act="slot" data-id="${h(s.id)}">Not recorded<small>Check paper MAR</small></button>`;
+    return `<button type="button" class="cell up" data-act="slot" data-id="${h(s.id)}">Upcoming<small>${s.time} · ${h(doseAtSlot(s))}</small></button>`;
+  };
+  const rows=plans.map(pl=>`<tr><td class="med"><b>${h(pl.name)} ${h(pl.strength)}</b><span class="muted">${h(pl.dose)} · ${h(pl.route)}${pl.instr?' · '+h(pl.instr):''}${pl.v>1?' · Version '+pl.v:''}</span>${pendingFor(pl.order)?'<br><span class="badge-pending">Change pending approval</span>':''}</td>
+    ${times.map(t=>`<td>${cell(live().find(s=>s.order===pl.order&&s.time===t))}</td>`).join('')}</tr>`).join('');
+  return `${ident(p,true)}
+  <div class="row" style="margin-bottom:12px"><div><h1 style="font-size:22px">Sunday 25 October 2026</h1><div class="muted">Paper MAR in use: CM11 started ${p.mar.start} · ${p.mar.sheets} sheet${p.mar.sheets>1?'s':''} · Week ${Math.floor((DEMO_DAY-p.mar.startDay)/7)+1}</div></div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" type="button" data-act="medlist" data-pid="${pid}">Medication list</button><button class="btn" type="button" data-act="change" data-pid="${pid}">Record a prescription change</button>
+    <button class="btn danger" type="button" data-act="report" data-pid="${pid}">Report an event or discrepancy</button></div></div>
+  <div class="gridbox"><table class="mar"><thead><tr><th style="text-align:left">Medicine</th>${times.map(t=>`<th>${t}</th>`).join('')}</tr></thead><tbody>${rows||'<tr><td>No current prescriptions.</td></tr>'}</tbody></table></div>
+  <p class="muted">PRN (as-needed) medicines are not shown here. Use the existing PRN chart.</p>
+  <div class="legend"><span><i class="sw" style="background:var(--accent);border-color:var(--accent)"></i>Given</span><span><i class="sw" style="background:var(--refuse-bg);border-color:var(--refuse-line)"></i>Refused / withheld / not given</span><span><i class="sw" style="background:var(--due-bg);border-color:var(--due-line)"></i>Due now</span><span><i class="sw" style="background:var(--warn-bg);border-color:var(--warn-line)"></i>Not recorded: check</span></div>
+  ${stockPanel(pid,plans)}`;
+}
+function stockPanel(pid,plans){
+  const last=order=>S.slots.filter(s=>s.order===order&&s.entry&&s.entry.count!=null).sort((a,b)=>b.entry.at-a.entry.at)[0];
+  const flagged=order=>S.slots.some(s=>s.order===order&&s.entry&&s.entry.stockFlag);
+  const tabs=plans.filter(pl=>pl.unit!=='ml'),liqs=plans.filter(pl=>pl.unit==='ml');
+  const tRows=tabs.map(pl=>{const st=S.stock[pl.order];
+    if(!st)return `<tr><td class="med"><b>${h(pl.name)} ${h(pl.strength)}</b></td><td colspan="6" class="muted">No stock recorded yet. Record stock received to start the count.</td></tr>`;
+    const sum=t=>st.moves.filter(m=>m.type===t).reduce((a,m)=>a+m.qty,0),l=last(pl.order);
+    return `<tr><td class="med"><b>${h(pl.name)} ${h(pl.strength)}</b><span class="muted">counted in ${h(pl.unit)}s</span></td>
+      <td style="text-align:center">${st.cf}</td><td style="text-align:center">${sum('received')}</td><td style="text-align:center">${sum('returned')}</td>
+      <td style="text-align:center">${l?`<b>${l.entry.count}</b><br><small class="muted">${U(l.entry.by).init} · ${h(l.entry.actual)}</small>`:'-'}</td>
+      <td style="text-align:center"><b>${balance(pl.order)}</b></td>
+      <td>${flagged(pl.order)?'<span class="pill warn">Stock check needed</span>':'<span class="pill ok">Count matches</span>'}</td></tr>`;}).join('');
+  const lRows=liqs.map(pl=>{const st=S.stock[pl.order];
+    if(!st)return `<tr><td class="med"><b>${h(pl.name)} ${h(pl.strength)}</b></td><td colspan="5" class="muted">No bottles recorded yet. Record stock received to start tracking.</td></tr>`;
+    const q=liquidState(pl.order),l=last(pl.order),unopTotal=q.unopened.reduce((a,v)=>a+v,0);
+    const groups={};q.unopened.forEach(v=>groups[v]=(groups[v]||0)+1);
+    const unopTxt=q.unopened.length?Object.keys(groups).map(v=>`${groups[v]} × ${v} ml`).join('<br>'):'None';
+    return `<tr><td class="med"><b>${h(pl.name)} ${h(pl.strength)}</b></td>
+      <td style="text-align:center">${q.inUse!=null?`<b>about ${q.inUse} ml</b><br><small class="muted">${q.openedAt!=null?'opened '+fmt(q.openedAt)+' by '+U(q.openedBy).init:'from previous sheet'}</small>`:'No bottle open'}</td>
+      <td style="text-align:center">${unopTxt}${q.unopened.length?`<br><small class="muted">${unopTotal} ml sealed</small>`:''}</td>
+      <td style="text-align:center"><b>about ${(q.inUse||0)+unopTotal} ml</b><br><small class="muted">${q.unopened.length+(q.inUse!=null?1:0)} bottle${q.unopened.length+(q.inUse!=null?1:0)===1?'':'s'}</small></td>
+      <td style="text-align:center">${l?`<b>${l.entry.count} ml</b><br><small class="muted">${U(l.entry.by).init} · ${h(l.entry.actual)}</small>`:'-'}</td>
+      <td>${flagged(pl.order)?'<span class="pill warn">Stock check needed</span>':'<span class="pill ok">Level matches</span>'}</td></tr>`;}).join('');
+  return `<div class="row" style="margin-top:22px;margin-bottom:8px"><h2 style="margin:0">Stock</h2>
+    <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn small" type="button" data-act="stock" data-pid="${pid}" data-mode="received">Record stock received</button><button class="btn small" type="button" data-act="stock" data-pid="${pid}" data-mode="returned">Record stock returned</button>${liqs.length?`<button class="btn small" type="button" data-act="stock" data-pid="${pid}" data-mode="opened">Open a new bottle</button>`:''}</div></div>
+  ${tabs.length?`<div class="gridbox"><table class="mar"><thead><tr><th style="text-align:left">Tablets and capsules</th><th>Carried forward</th><th>Received</th><th>Returned</th><th>Last count</th><th>Balance now</th><th>Check</th></tr></thead><tbody>${tRows}</tbody></table></div>`:''}
+  ${liqs.length?`<div class="gridbox" style="margin-top:12px"><table class="mar"><thead><tr><th style="text-align:left">Liquids</th><th>Bottle in use</th><th>Unopened bottles</th><th>Total on hand</th><th>Last reading</th><th>Check</th></tr></thead><tbody>${lRows}</tbody></table></div>`:''}
+  <p class="muted">Tablets and capsules are counted exactly. For liquids, unopened bottles are counted exactly and the bottle in use is read from its markings, so its level and the total are approximate. A reading more than ${LIQ_TOL} ml from the expected level is flagged (demo setting).</p>`;
+}
+function bottleOptions(pid){
+  const out=[];S.plans.filter(x=>x.pid===pid&&x.state==='Current'&&x.unit==='ml'&&S.stock[x.order]).forEach(pl=>{
+    const q=liquidState(pl.order);const seen={};q.unopened.forEach(v=>{if(seen[v])return;seen[v]=1;out.push({value:pl.order+'|'+v,label:`${pl.name} ${pl.strength} · ${v} ml bottle (unopened)`,inUse:q.inUse});});});
+  return out;
+}
+function stockView(pid,mode){
+  const p=person(pid),plans=S.plans.filter(x=>x.pid===pid&&x.state==='Current');
+  const btns=`<div class="row"><button class="btn" type="button" data-act="person" data-pid="${pid}">Cancel</button><span style="display:flex;gap:12px;align-items:center;flex-wrap:wrap"><span class="muted">Signed in as ${h(user.name)}</span><button class="btn primary" type="submit">Save</button></span></div>`;
+  if(mode==='opened'){
+    const opts=bottleOptions(pid);
+    if(!opts.length)return `${ident(p,true)}<div class="panel"><h1>Open a new bottle</h1><p>There are no unopened bottles recorded for ${h(p.name)}. Record the stock received first, then open a bottle from it.</p><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" type="button" data-act="person" data-pid="${pid}">Back to chart</button><button class="btn primary" type="button" data-act="stock" data-pid="${pid}" data-mode="received">Record stock received</button></div></div>`;
+    return `${ident(p,true)}<form class="panel" id="stform" data-pid="${pid}" data-mode="opened" novalidate>
+    <h1>Open a new bottle</h1><p class="muted">Takes one unopened bottle into use. Write today's date on the label.</p>
+    <label class="f" for="st-bottle">Bottle to open<select id="st-bottle">${opts.map(o=>`<option value="${o.value}">${h(o.label)}</option>`).join('')}</select></label>
+    <label class="f" for="st-fate">What happened to the bottle that was in use?<select id="st-fate"><option value="empty">It was empty</option><option value="disposed">Some was left: disposed of under the medicines policy</option></select></label>
+    <div class="fields"><label class="f" for="st-disp">If disposed of: about how much (ml)<input id="st-disp" type="text" inputmode="numeric" placeholder="e.g. 20"></label></div>
+    <label class="f" for="st-note">Note<textarea id="st-note" placeholder="e.g. previous bottle past its use-by date"></textarea></label>
+    <div id="st-err" class="alert err" hidden></div>${btns}</form>`;
+  }
+  const rec=mode==='received',hasLiq=plans.some(pl=>pl.unit==='ml');
+  return `${ident(p,true)}<form class="panel" id="stform" data-pid="${pid}" data-mode="${mode}" novalidate>
+    <h1>${rec?'Record stock received':'Record stock returned'}</h1>
+    <p class="muted">${rec?'Matches "Quantity received" on the paper MAR. Count what has arrived before you record it.':'Matches "Returned" on the paper MAR: stock going back to the pharmacy or family, or destroyed under the medicines policy. For liquids, this is for unopened bottles; a part-used bottle is recorded when the next one is opened.'}</p>
+    <label class="f" for="st-order">Medicine<select id="st-order">${plans.map(pl=>`<option value="${pl.order}">${h(pl.name)} ${h(pl.strength)}${pl.unit==='ml'?' (liquid)':''}</option>`).join('')}</select></label>
+    <div class="fields"><label class="f" for="st-qty">Quantity (tablets or capsules; number of bottles for liquids)<input id="st-qty" type="text" inputmode="numeric" placeholder="e.g. 28 or 1"></label>
+      ${hasLiq?`<label class="f" for="st-vol">Liquids only: size of each bottle (ml)<input id="st-vol" type="text" inputmode="numeric" placeholder="e.g. 200"></label>`:''}
+      <label class="f" for="st-from">${rec?'Received from':'Returned to'}<select id="st-from">${(rec?['Pharmacy delivery','Family at admission','Hospital discharge','Other (see note)']:['Pharmacy','Family at discharge','Destroyed under medicines policy','Other (see note)']).map(o=>`<option>${o}</option>`).join('')}</select></label></div>
+    <label class="f" for="st-note">Note<textarea id="st-note"></textarea></label>
+    <div id="st-err" class="alert err" hidden></div>${btns}</form>`;
+}
+function recordView(id){
+  const s=S.slots.find(x=>x.id===id),p=person(s.pid),pl=planOf(s);
+  const prev=S.slots.filter(x=>x.order===s.order&&x.entry).sort((a,b)=>b.entry.at-a.entry.at).slice(0,3);
+  const side=`<aside class="panel" style="display:flex;flex-direction:column;gap:14px"><h2 style="margin:0">Dose</h2>
+    <div><div style="font-size:22px;font-weight:700">${h(pl.name)} ${h(pl.strength)}</div><div>${h(pl.dose)} · ${h(pl.route)}${pl.instr?' · '+h(pl.instr):''}</div></div>
+    <div class="kv"><div><small>Scheduled</small><b>${s.time} today</b></div><div><small>Dose at this time</small><b>${h(doseAtSlot(s))}</b></div><div><small>Prescription</small><b>Version ${pl.v}, approved</b></div><div><small>Stock</small><b>${S.stock[s.order]?(S.stock[s.order].liquid?'Bottle level after each dose':'Counted after each dose'):'Not counted yet'}</b></div></div>
+    <div><b class="muted" style="font-size:15px">Last recorded for this medicine</b><div>${prev.length?prev.map(x=>`${x.time} · ${h(OC(x.entry.outcome).short)} · ${U(x.entry.by).init}${x.entry.count!=null?' · count '+x.entry.count:''}`).join('<br>'):'Nothing recorded yet today'}</div></div>
+    ${pendingFor(pl.order)?'<div class="alert warn">A prescription change is waiting for approval. Follow the medicines policy until it is approved.</div>':''}
+    <div class="note">Saving confirms what is on the paper MAR. It does not authorise another dose.</div></aside>`;
+  if(s.entry){const e=s.entry;return `${ident(p,true)}<div class="two">${side}<div class="panel" style="display:flex;flex-direction:column;gap:14px">
+    <h1>Already recorded</h1><div class="alert ok">${h(OC(e.outcome).label)} at ${h(e.actual)} by ${h(U(e.by).name)} (paper MAR: ${h(e.chart)}). Saved ${fmt(e.at)}.${e.used?`<br>Amount: ${h(doseUnit(e.used,pl.unit))}`:''}${e.count!=null?` · Count after: ${e.count}`:''}</div>
+    ${e.stockFlag?`<div class="alert warn">Stock discrepancy: counted ${e.count}, the running balance expected ${e.expected}. The shift leader needs to check the stock.</div>`:''}
+    ${e.notes?`<div><b>Notes</b><br>${h(e.notes)}</div>`:''}
+    <p>This box can only be filled once. If something is wrong, report it so a manager can review and add a linked correction.</p>
+    <div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn" type="button" data-act="person" data-pid="${p.id}">Back to chart</button><button class="btn danger" type="button" data-act="report" data-pid="${p.id}">Report an event or discrepancy</button></div></div></div>`;}
+  if(status(s)==='up'){return `${ident(p,true)}<div class="two">${side}<div class="panel"><h1>Not due yet</h1><p>This dose is due at ${s.time}. It can be confirmed from ${fmt(mins(s.time)-WINDOW)}.</p><button class="btn" type="button" data-act="person" data-pid="${p.id}">Back to chart</button></div></div>`;}
+  const late=now>mins(s.time)+WINDOW;
+  return `${ident(p,true)}<div class="two">${side}
+  <form class="panel" id="recform" data-id="${h(s.id)}" novalidate>
+    <h1>Confirm paper MAR entry</h1>
+    ${late?'<div class="alert warn">This is a late entry. Add a note explaining the delay. The scheduled time, the time given and the time you save are all kept.</div>':''}
+    <fieldset><legend>What does the paper MAR say?</legend><div class="seg">${OUTCOMES.map(o=>`<button type="button" class="btn" data-act="outcome" data-val="${o.code}" aria-pressed="false">${o.label}</button>`).join('')}</div></fieldset>
+    <div class="fields">
+      <label class="f" for="r-time">Time (from paper)<input id="r-time" type="time" value="${fmt(Math.min(now,mins(s.time)+5))}"></label>
+    </div>
+    <div><span class="lbl">The box on the paper MAR</span><div class="note" style="font-weight:700">${h(paperRef(s))}</div></div>
+    <label class="check" for="r-boxok"><input id="r-boxok" type="checkbox"><span>I have signed this box on the paper MAR.</span></label>
+    <details><summary style="cursor:pointer;font-weight:700;min-height:44px;display:flex;align-items:center">The entry is somewhere else (for example a continuation sheet)</summary>
+      <label class="f" for="r-alt" style="margin-top:8px">Where is it?<input id="r-alt" type="text" placeholder="e.g. CM11 sheet 2 of 2, page 1, row 3"></label></details>
+    <div class="fields" id="r-stockf">
+      <label class="f" for="r-qty">Amount given or destroyed (${h(pl.unit)}s)<input id="r-qty" type="text" inputmode="decimal" value="${pl.sched[s.time]}"></label>
+      ${S.stock[s.order]?(S.stock[s.order].liquid?`<label class="f" for="r-count">About how much is left in the bottle (ml)<input id="r-count" type="text" inputmode="numeric" placeholder="Read the bottle markings"></label>`:`<label class="f" for="r-count">Count left after this dose<input id="r-count" type="text" inputmode="numeric" placeholder="Count what's left"></label>`):''}
+    </div>
+    ${S.stock[s.order]?`<p class="muted" style="margin:-8px 0 0">${S.stock[s.order].liquid?'Read the level from the bottle in use. A small difference is fine; a large one is flagged for the shift leader.':'Count what is actually left in the box or blister pack. Don\'t work it out from the last count.'}</p>`:''}
+    <div id="r-wnote" class="note" hidden>Withheld: in the notes, record who authorised it and the instruction (for example the GP or pharmacist, and when).</div>
+    <div id="r-nstock" class="alert warn" hidden>No stock: tell the shift leader now so the medicine can be obtained. Follow the medicines policy.</div>
+    <label class="f" for="r-notes">Notes (required for anything other than Given, or a late entry)<textarea id="r-notes"></textarea></label>
+    <label class="check" for="r-self"><input id="r-self" type="checkbox"><span>I dealt with this dose myself.</span></label>
+    <div id="r-err" class="alert err" hidden></div>
+    <div class="row"><button class="btn" type="button" data-act="person" data-pid="${p.id}">Cancel</button>
+      <span style="display:flex;gap:12px;align-items:center;flex-wrap:wrap"><span class="muted">Signed in as ${h(user.name)}</span><button class="btn primary" type="submit">Save confirmation</button></span></div>
+  </form></div>`;
+}
+function reportView(pid){
+  const p=person(pid);
+  return `${ident(p,true)}<form class="panel" id="repform" data-pid="${pid}" novalidate>
+    <h1>Report an event or discrepancy</h1>
+    <p class="muted">Use this to record what actually happened: a wrong medicine or dose, a dose given twice, a dose given that isn't on the chart, or anything you're unsure about. It goes to the shift leader and manager for review under the incident process. It does not complete any scheduled dose.</p>
+    <label class="f" for="e-type">What kind of event?<select id="e-type"><option>Wrong medicine given</option><option>Wrong dose given</option><option>Dose may have been given twice</option><option>Medicine given that is not on the chart</option><option>Paper MAR and app don't match</option><option>Unsure what happened</option></select></label>
+    <div class="fields"><label class="f" for="e-time">Time it happened<input id="e-time" type="time" value="${fmt(now)}"></label></div>
+    <label class="f" for="e-what">What happened? (facts only)<textarea id="e-what"></textarea></label>
+    <label class="f" for="e-done">What have you done so far?<textarea id="e-done" placeholder="e.g. Checked the person, told the shift leader, called 111 / GP as advised"></textarea></label>
+    <div id="e-err" class="alert err" hidden></div>
+    <div class="row"><button class="btn" type="button" data-act="person" data-pid="${pid}">Cancel</button><button class="btn danger" type="submit">Send report</button></div>
+  </form>`;
+}
+function handoverView(){
+  const H=S.handover;
+  const day=live().filter(s=>mins(s.time)<DAY_END&&mins(s.time)<=now).sort((a,b)=>mins(a.time)-mins(b.time)||a.pid.localeCompare(b.pid));
+  const signed=day.filter(s=>H.signs[s.id]).length;
+  const rows=day.map(s=>{
+    const p=person(s.pid),pl=planOf(s),st=status(s),sg=H.signs[s.id];
+    const entry=s.entry?`<b>${h(OC(s.entry.outcome).label)}</b> · ${U(s.entry.by).init} · ${h(s.entry.actual)}${s.entry.count!=null?' · count '+s.entry.count:''}${s.entry.stockFlag?` <span class="pill warn">Stock: expected ${s.entry.expected}</span>`:''}${s.entry.notes?`<br><span class="muted" style="font-size:15px">${h(s.entry.notes)}</span>`:''}`:
+      st==='warn'?'<span class="pill warn">Not recorded</span>':st==='due'?'<span class="pill due">Due now, not recorded</span>':'<span class="pill plain">Not yet due</span>';
+    let act;
+    if(sg)act=`<span class="pill ok">Countersigned · ${U(sg.by).init} · ${fmt(sg.at)}</span>${sg.action?`<br><span class="muted" style="font-size:14px">${h(sg.action)}</span>`:''}`;
+    else if(!H.handedBy)act='<span class="muted">Waiting for day handover</span>';
+    else if(!s.entry)act=`<div style="display:flex;flex-direction:column;gap:6px"><label class="f" for="a-${h(s.id)}" style="font-size:14px">Action taken<select id="a-${h(s.id)}"><option value="">Choose what you did…</option><option>Paper MAR shows signed: app not updated</option><option>Not given: told shift leader / on-call</option><option>Unclear: told shift leader / on-call</option></select></label><button class="btn primary small" type="button" data-act="csign" data-id="${h(s.id)}">Countersign</button></div>`;
+    else act=`<button class="btn primary small" type="button" data-act="csign" data-id="${h(s.id)}">Countersign</button>`;
+    return `<div class="hrow${!s.entry?' miss':''}"><b style="font-size:19px">${s.time}</b><b>${h(p.name)}</b><span>${h(pl.name)} ${h(pl.strength)} · ${h(pl.dose)}</span><span>${entry}${!s.entry&&!sg?'<br><span style="font-size:14px;font-weight:700;color:var(--warn)">No administration recorded. Check the paper MAR and the person.</span>':''}</span><span>${act}</span></div>`;
+  }).join('');
+  const isDay=user.role==='Day staff'||user.role==='Manager';
+  return `<div class="row"><h1>Day → Night medication handover · Sunday 25 October</h1></div>${now<19*60?'<div class="alert warn" style="margin-top:10px">Demo tip: set Demo time to 20:05 to see a full day-shift handover.</div>':''}
+  <div class="fields" style="margin:14px 0">
+    <div class="panel"><div class="muted" style="font-size:14px;font-weight:700;text-transform:uppercase;letter-spacing:.05em">Handed over by · day</div>
+      ${H.handedBy?`<div style="font-size:20px;font-weight:700">${h(U(H.handedBy).name)}</div><span class="pill ok">Signed with own account ${fmt(H.handedAt)}</span>`:
+       isDay?`<p>Sign to hand over the day shift's medication entries.</p><button class="btn primary" type="button" data-act="handover-sign">Sign handover as ${h(user.name)}</button>`:'<p class="muted">Waiting for a day staff member to sign. Switch user to sign as day staff.</p>'}</div>
+    <div class="panel"><div class="muted" style="font-size:14px;font-weight:700;text-transform:uppercase;letter-spacing:.05em">Received by · night</div>
+      ${H.done?`<div style="font-size:20px;font-weight:700">${h(U(H.done.by).name)}</div><span class="pill ok">Handover completed ${fmt(H.done.at)}</span>`:
+       H.handedBy?(user.id===H.handedBy?'<p class="muted">Now switch user: the night staff member signs in with their own account to countersign.</p>':`<div style="font-size:20px;font-weight:700">${h(user.name)}</div><span class="muted">Signed in on this device now</span>`):'<p class="muted">Countersigning starts after the day handover is signed.</p>'}</div>
+  </div>
+  <div class="row" style="margin-bottom:10px"><div class="progress"><i style="width:${day.length?Math.round(signed/day.length*100):0}%"></i></div><b>${signed} of ${day.length} countersigned</b></div>
+  <div class="panel" style="padding:0;overflow:hidden"><div class="hrow head"><span>Time</span><span>Person</span><span>Medicine</span><span>Day shift entry</span><span>Night countersign</span></div>${rows}</div>
+  <div class="row" style="margin-top:14px"><p class="muted" style="max-width:62ch;margin:0">Countersigning means you have been told about this entry and accept it at handover. It does not record a dose and does not authorise one. Each entry is signed on its own; there is no "sign all".</p>
+  <button class="btn primary" type="button" data-act="handover-done" ${H.done||!H.handedBy||signed<day.length?'disabled':''}>${H.done?'Handover completed':signed<day.length?'Complete handover · '+(day.length-signed)+' still to sign':'Complete handover'}</button></div>`;
+}
+let rowSeq=0;
+function timeOptions(sel){let o='';for(let m=0;m<24*60;m+=15){const t=fmt(m);o+=`<option${t===sel?' selected':''}>${t}</option>`;}return o;}
+function timeRow(n,sel){const id='tr'+(rowSeq++);return `<div class="trow" style="display:grid;grid-template-columns:140px minmax(0,1fr) auto;gap:8px;align-items:end">
+  <label class="f" for="${id}-t">Time<select id="${id}-t" class="c-time">${timeOptions(sel)}</select></label>
+  <label class="f" for="${id}-d">Dose at this time<input id="${id}-d" class="c-dosetxt" type="text" placeholder="e.g. 1 tablet, 10 ml"></label>
+  <button type="button" class="btn small" data-act="deltime" aria-label="Remove this time">Remove</button></div>`;}
+function approvalOf(pl){const c=S.changes.filter(x=>x.order===pl.order&&x.status==='Approved').slice(-1)[0];return c?`${U(c.approver).name} · ${fmt(c.decisionAt)} 25/10/2026 · letter ${c.date}`:'Approved at chart setup (demo)';}
+function medRows(pid){return S.plans.filter(x=>x.pid===pid&&x.state==='Current');}
+function medListView(pid){
+  const people=pid?[person(pid)]:S.people.filter(p=>medRows(p.id).length);
+  const sheets=people.map(p=>{const rows=medRows(p.id);return `<section class="medsheet panel">
+    <div class="row"><div><div class="muted" style="font-size:14px;font-weight:700;letter-spacing:.05em;text-transform:uppercase">Oakwoods Care Group · Ardington House</div><h1 style="font-size:24px">Medication list: ${h(p.name)}</h1>
+    <div>Date of birth ${p.dob} · ID ${p.id} · Paper MAR: CM11 started ${p.mar.start}</div></div><div class="allergy ${p.allergy==='nka'?'nka':p.allergy==='unknown'?'unknown':'has'}">${allergyText(p)}</div></div>
+    <div class="gridbox" style="margin-top:12px"><table class="mar"><thead><tr><th style="text-align:left">Medicine</th><th style="text-align:left">Route</th><th style="text-align:left">Times and doses</th><th style="text-align:left">Instructions</th><th style="text-align:left">Version and approval</th><th style="text-align:left">Stock</th></tr></thead><tbody>
+    ${rows.map(pl=>`<tr><td><b>${h(pl.name)}</b><br>${h(pl.strength)}</td><td>${h(pl.route)}</td><td>${pl.times.map(t=>`${t} · ${h(doseUnit(pl.sched[t],pl.unit))}`).join('<br>')}</td><td>${h(pl.instr)||'<span class="muted">None recorded</span>'}</td><td>Version ${pl.v}<br><span class="muted">${h(approvalOf(pl))}</span></td><td>${S.stock[pl.order]?(S.stock[pl.order].liquid?'Bottle level':'Counted'):'Not tracked'}</td></tr>`).join('')}</tbody></table></div>
+    <div class="fields" style="margin-top:12px">${[0,1].map(k=>{const sg=sigFor(p.id,k);return `<div style="border:1px solid var(--line);border-radius:10px;padding:8px 12px"><small class="muted">${k?'Second signature (night)':'First signature (day)'}</small><br>${sg?`<img src="${sg.img}" alt="Signature of ${h(sg.name)}" style="height:44px;background:#fff;border-radius:6px"><br><b>${h(sg.name)}</b> · ${fmt(sg.at)}`:'<span class="muted">Not signed yet</span>'}</div>`;}).join('')}</div>
+    <p class="muted" style="margin:10px 0 0">PRN (as-needed) medicines are on the separate PRN chart. Generated 25/10/2026 ${fmt(now)} by ${h(user.name)} from the medication app. The paper MAR is the official record.</p>
+    </section>`;}).join('');
+  return `<div class="row noprint"><div><h1>Medication list${pid?'':' · everyone with medication'}</h1><p class="muted" style="margin:4px 0 0">Current medicines, doses and times, to print or save as a PDF and keep with the paper MAR.</p></div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">${pid?`<button class="btn" type="button" data-act="person" data-pid="${pid}">Back to chart</button>`:''}<button class="btn" type="button" data-act="copylist">Copy as text</button><button class="btn primary" type="button" data-act="print">Save as PDF</button></div></div>
+  <p class="note noprint" style="margin:12px 0">"Save as PDF" creates a PDF (one page per person) that you can keep with the records or print. You'll be asked to confirm the download. In the real app this list would be saved automatically as a dated PDF in the person's record folder.</p>
+  <textarea id="ml-text" class="noprint" hidden style="width:100%;min-height:200px"></textarea>
+  ${signPanel(pid)}
+  <div style="display:flex;flex-direction:column;gap:16px">${sheets}</div>`;
+}
+function medListText(pid){
+  const people=pid?[person(pid)]:S.people.filter(p=>medRows(p.id).length);
+  return people.map(p=>[`OAKWOODS CARE GROUP · ARDINGTON HOUSE`,`Medication list: ${p.name}`,`Date of birth ${p.dob} · ID ${p.id} · ${allergyText(p).replace(/&amp;/g,'&')}`,`Paper MAR: CM11 started ${p.mar.start}`,'',
+    ...medRows(p.id).map(pl=>`- ${pl.name} ${pl.strength} · ${pl.route}\n    ${pl.times.map(t=>t+' '+doseUnit(pl.sched[t],pl.unit)).join('; ')}${pl.instr?'\n    Instructions: '+pl.instr:''}\n    Version ${pl.v} · ${approvalOf(pl)}`),
+    '','PRN medicines: see the separate PRN chart.',`Generated 25/10/2026 ${fmt(now)} by ${user.name}. The paper MAR is the official record.`,'Checked against paper MAR by: ____________  Signature: ________  Date: ______'].join('\n')).join('\n\n----------\n\n');
+}
+let DL=null;try{if(window.claude&&window.claude.use)window.claude.use('downloads').then(d=>{DL=d;}).catch(()=>{});}catch(_){}
+function makePdf(pid){
+  const {jsPDF}=window.jspdf;const doc=new jsPDF({orientation:'landscape',unit:'mm',format:'a4'});
+  const people=pid?[person(pid)]:S.people.filter(p=>medRows(p.id).length);
+  people.forEach((p,i)=>{
+    if(i)doc.addPage();
+    doc.setFont('helvetica','bold');doc.setFontSize(9);doc.setTextColor(80);doc.text('OAKWOODS CARE GROUP · ARDINGTON HOUSE',14,14);
+    doc.setTextColor(0);doc.setFontSize(16);doc.text('Medication list: '+p.name,14,22);
+    doc.setFont('helvetica','normal');doc.setFontSize(10);
+    doc.text(`Date of birth ${p.dob} · ID ${p.id} · Paper MAR: CM11 started ${p.mar.start}`,14,29);
+    doc.setFont('helvetica','bold');doc.text(allergyText(p).replace(/&amp;/g,'&'),14,35);
+    doc.autoTable({startY:40,head:[['Medicine','Route','Times and doses','Instructions','Version and approval','Stock']],
+      body:medRows(p.id).map(pl=>[pl.name+'\n'+pl.strength,pl.route,pl.times.map(t=>t+'  '+doseUnit(pl.sched[t],pl.unit)).join('\n'),pl.instr||'None recorded','Version '+pl.v+'\n'+approvalOf(pl),S.stock[pl.order]?(S.stock[pl.order].liquid?'Bottle level':'Counted'):'Not tracked']),
+      styles:{font:'helvetica',fontSize:10,cellPadding:2.5,valign:'top'},headStyles:{fillColor:[31,92,104]},theme:'grid',margin:{left:14,right:14}});
+    let y=doc.lastAutoTable.finalY+8;doc.setFont('helvetica','normal');doc.setFontSize(9);
+    doc.text('PRN (as-needed) medicines are on the separate PRN chart. The paper MAR is the official record.',14,y);
+    doc.text(`Generated 25/10/2026 ${fmt(now)} by ${user.name} from the medication app (demonstration, fictional data).`,14,y+5);
+    if(y+52>200){doc.addPage();y=14;}
+    const so=currentSignoff(p.id);
+    [0,1].forEach(k=>{const x=14+k*136,top=y+12,sg=so&&so.sigs[k];
+      doc.setDrawColor(120);doc.rect(x,top,128,38);doc.setFont('helvetica','bold');doc.setFontSize(9);
+      doc.text(k?'Second signature (night staff): checked against paper MAR':'First signature (day staff): checked against paper MAR',x+3,top+5);
+      doc.setFont('helvetica','normal');
+      if(sg){try{doc.addImage(sg.img,'PNG',x+3,top+7,70,20);}catch(_){} doc.text(`${sg.name} (${sg.role})`,x+3,top+31);doc.text(`Signed 25/10/2026 ${fmt(sg.at)} in the app`,x+3,top+35.5);}
+      else{doc.text('Signature: ___________________________',x+3,top+20);doc.text('Name: ______________________   Date/time: ______________',x+3,top+31);}
+    });
+  });
+  return doc.output('blob');
+}
+async function savePdf(pid){
+  const name='Medication list '+(pid?person(pid).name:'all residents')+' 2026-10-25.pdf';
+  if(!window.jspdf){try{window.print();}catch(_){} toast('The PDF tool could not load. Use "Copy as text" instead.');return;}
+  const blob=makePdf(pid);
+  if(DL){try{await DL.save({filename:name,data:blob});toast('PDF saved.');}catch(e){toast(e&&e.code==='declined'?'PDF not saved.':'The PDF could not be saved here. Use "Copy as text" instead.');}return;}
+  try{const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),5000);toast('PDF downloaded.');}catch(_){toast('The PDF could not be saved here. Use "Copy as text" instead.');}
+}
+// Sign-off of a medication list: two different people, each with their own sign-in.
+function listPeople(pid){return pid?[person(pid)]:S.people.filter(p=>medRows(p.id).length);}
+function snapKey(pid){return JSON.stringify(medRows(pid).map(pl=>pl.vid));}
+// Signatures are kept per person, so they appear on that person's page in every list and PDF.
+function currentSignoff(pid){const so=(S.signoffs||{})[pid];return so&&so.snap===snapKey(pid)?so:null;}
+function sigFor(pid,k){const so=currentSignoff(pid);return so?so.sigs[k]:null;}
+function signPanel(pid){
+  const ppl=listPeople(pid),ids=ppl.map(p=>p.id);
+  const done=k=>ids.filter(id=>sigFor(id,k)).length;
+  const stale=ids.some(id=>(S.signoffs||{})[id]&&!currentSignoff(id));
+  const box=k=>{const label=k?'Second signature (night staff)':'First signature (day staff)',n=done(k),sg=n?sigFor(ids.find(id=>sigFor(id,k)),k):null;
+    const all=n===ids.length;
+    if(all)return `<div class="panel" style="border:2px solid var(--ok-line)"><b>${label}</b> <span class="pill ok">Signed</span><div class="letter" style="min-height:100px;background:#fff;margin:8px 0"><img src="${sg.img}" alt="Signature of ${h(sg.name)}" style="max-height:90px"></div><div><b>${h(sg.name)}</b> (${h(sg.role)})</div><div class="muted">Signed 25/10/2026 ${fmt(sg.at)} with their own sign-in</div></div>`;
+    const missing=ppl.filter(p=>!sigFor(p.id,0)).map(p=>p.name);
+    const firstByMe=k===1&&ids.some(id=>{const f=sigFor(id,0);return f&&f.uid===user.id;});
+    const others=USERS.filter(u=>u.id!==user.id&&u.role!=='Day staff');
+    if(k===1&&missing.length)return `<div class="panel"><b>${label}</b>${n?` <span class="pill warn">Signed for ${n} of ${ids.length}</span>`:''}<p class="muted">The first signature is still needed for: <b style="color:var(--fg)">${missing.map(h).join(', ')}</b>. Sign the first box above, then the second signature can be added.</p></div>`;
+    if(firstByMe)return `<div class="panel"><b>${label}</b>${n?` <span class="pill warn">Signed for ${n} of ${ids.length}</span>`:''}<p style="margin:6px 0 10px">You gave the first signature, so the second must be someone else. Hand over to the night staff member and they sign in as themselves.</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">${others.map(u=>`<button class="btn${u.role==='Night staff'?' primary':''}" type="button" data-act="quickas" data-id="${u.id}">Sign in as ${h(u.name)}</button>`).join('')}</div></div>`;
+    return `<div class="panel"><b>${label}</b>${n?` <span class="pill warn">Signed for ${n} of ${ids.length}</span>`:''}
+      ${false?'':`<p class="muted" style="margin:4px 0 8px">Signing as <b style="color:var(--fg)">${h(user.name)}</b> (${h(user.role)})${ids.length>1?` for all ${ids.length} people on this list`:''}. Sign in the box with your finger or mouse.</p>
+      <canvas class="sigpad" data-n="${k}" style="width:100%;height:140px;background:#fff;border:2px dashed var(--line);border-radius:10px;touch-action:none;display:block" aria-label="Signature box"></canvas>
+      <label class="check" for="sig-ok-${k}" style="margin-top:10px"><input id="sig-ok-${k}" type="checkbox"><span>I have checked this medication list against the paper MAR.</span></label>
+      <div id="sig-err-${k}" class="alert err" hidden style="margin-top:10px"></div>
+      <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap"><button class="btn small" type="button" data-act="sigclear" data-n="${k}">Clear</button><button class="btn primary" type="button" data-act="sign" data-n="${k}">Sign</button></div>`}</div>`;};
+  const both=done(0)===ids.length&&done(1)===ids.length;
+  return `<section class="noprint panel" style="margin:16px 0;background:var(--sunk)"><h2 style="margin-top:0">Sign-off ${both?'<span class="pill ok">Both signatures done</span>':''}</h2>
+    ${stale?'<div class="alert warn" style="margin-bottom:10px">The medicines changed after this list was signed, so the earlier signatures no longer apply. It needs signing again.</div>':''}
+    <p class="muted" style="margin:0 0 10px">Two different people sign: the day staff member, then the night staff member with their own sign-in. Both signatures go on each person's page of the PDF.${both?' You can now tap "Save as PDF".':''}</p>
+    <div class="fields">${box(0)}${box(1)}</div></section>`;
+}
+function initPads(){document.querySelectorAll('canvas.sigpad').forEach(c=>{
+  const r=window.devicePixelRatio||1;c.width=c.clientWidth*r;c.height=c.clientHeight*r;const x=c.getContext('2d');x.scale(r,r);x.lineWidth=2.4;x.lineCap='round';x.lineJoin='round';x.strokeStyle='#111';
+  let down=false;const pt=e=>{const b=c.getBoundingClientRect();return [e.clientX-b.left,e.clientY-b.top];};
+  c.addEventListener('pointerdown',e=>{down=true;c.setPointerCapture(e.pointerId);const [a,b]=pt(e);x.beginPath();x.moveTo(a,b);});
+  c.addEventListener('pointermove',e=>{if(!down)return;const [a,b]=pt(e);x.lineTo(a,b);x.stroke();c.dataset.drawn='1';});
+  ['pointerup','pointercancel','pointerleave'].forEach(t=>c.addEventListener(t,()=>{down=false;}));
+});}
+function changeView(pid){
+  const p=person(pid),plans=S.plans.filter(x=>x.pid===pid&&x.state==='Current');
+  const approver=user.id==='rm'?'Deputy Manager':'Registered Manager (or Deputy Manager if unavailable)';
+  return `${ident(p,true)}<form class="panel" id="chform" data-pid="${pid}" novalidate>
+    <div class="row"><h1>Record a prescription change</h1><span class="muted">Entered by <b style="color:var(--fg)">${h(user.name)}</b></span></div>
+    <fieldset><legend>Type of change</legend><div class="seg">${['Change dose or times','Add a medicine','Stop a medicine'].map((t,i)=>`<button type="button" class="btn" data-act="ctype" data-val="${t}" aria-pressed="${i===0}">${t}</button>`).join('')}</div></fieldset>
+    <input type="hidden" id="c-type" value="Change dose or times">
+    <div id="c-existing"><label class="f" for="c-order">Medicine<select id="c-order">${plans.map(pl=>`<option value="${pl.order}">${h(pl.name)} ${h(pl.strength)} · now ${h(pl.dose)} at ${pl.times.join(', ')}</option>`).join('')}</select></label></div>
+    <div id="c-new" hidden class="fields"><label class="f" for="c-name">Medicine name<input id="c-name" type="text"></label><label class="f" for="c-strength">Strength and form<input id="c-strength" type="text" placeholder="e.g. 10 mg tablet"></label><label class="f" for="c-route">Route<input id="c-route" type="text" value="Oral"></label></div>
+    <div id="c-sched"><span class="lbl">New times and doses (as written in the letter)</span><div id="c-rows" style="display:flex;flex-direction:column;gap:8px">${timeRow(0,'08:00')}</div><button type="button" class="btn small" data-act="addtime" style="margin-top:8px">+ Add another time</button></div>
+    <div class="fields"><label class="f" for="c-dr">Doctor's name<input id="c-dr" type="text"></label><label class="f" for="c-surg">Surgery / hospital<input id="c-surg" type="text"></label><label class="f" for="c-date">Date on letter<input id="c-date" type="date" max="2026-10-25"></label></div>
+    <div><span class="lbl">Doctor's letter (required)</span><div class="letter" id="c-prev"><span class="muted">No photo yet</span></div>
+      <label class="btn" for="c-photo" style="margin-top:8px">Add the letter (photo, scan or PDF)</label><input id="c-photo" type="file" accept="image/*,application/pdf" hidden><div class="muted" style="font-size:15px;margin-top:4px">On a tablet you can take a photo or pick a saved scan.</div></div>
+    <label class="check" for="c-addr"><input id="c-addr" type="checkbox"><span>The letter is addressed to <b>Oakwoods Care Group</b>, and is signed and dated by the doctor.</span></label>
+    <div class="note">Will be sent for approval to: <b>${approver}</b>. Until it is approved, the current prescription stays on the chart with a "Change pending approval" note. Follow the medicines policy in the meantime.</div>
+    <div id="c-err" class="alert err" hidden></div>
+    <div class="row"><button class="btn" type="button" data-act="person" data-pid="${pid}">Cancel</button><button class="btn primary" type="submit">Send for approval</button></div>
+  </form>`;
+}
+function approvalsView(){
+  const list=S.changes.slice().reverse();
+  return `<h1>Manager approvals</h1><p class="muted">Prescription changes waiting for a second signature. You can't approve a change you entered yourself.</p>
+  <div class="list">${list.length?list.map(c=>{const p=person(c.pid);return `<button type="button" class="item${c.status==='Pending approval'?' warn':''}" data-act="approval" data-id="${c.id}"><span class="t" style="font-size:16px">${fmt(c.at)}</span><span><b>${h(p.name)}</b><br><span class="muted">Entered by ${h(U(c.by).name)}</span></span><span>${h(c.type)} · ${h(c.medLabel)}</span><span class="pill ${c.status==='Approved'?'ok':c.status==='Rejected'?'refuse':'warn'}">${c.status}</span></button>`;}).join(''):'<div class="panel">No prescription changes yet. Open a person\'s chart and choose "Record a prescription change" to try one.</div>'}</div>`;
+}
+function approvalView(id){
+  const c=S.changes.find(x=>x.id===id),p=person(c.pid),old=c.order?S.plans.find(x=>x.order===c.order&&(x.state==='Current'||x.vid===c.oldVid)):null;
+  const own=c.by===user.id, rmOnly=c.by==='rm'&&user.id!=='dm';
+  const block=own?'You entered this change, so you can\'t approve it. Another manager must approve it.':rmOnly?'The Registered Manager entered this change, so the Deputy Manager must approve it.':'';
+  const oldTxt=old?`${h(old.dose)}<br>${old.times.join(' · ')}`:'Not currently prescribed';
+  const newTxt=c.type==='Stop a medicine'?'<b>Stop this medicine</b>':`${c.times.map(t=>t+' · '+h(c.doseText[t])).join('<br>')}`;
+  return `<div class="row"><h1>Prescription change for ${h(p.name)}</h1><button class="btn" type="button" data-act="go" data-view="approvals">Back to approvals</button></div>
+  <p class="muted">ID ${p.id} · Entered by ${h(U(c.by).name)} at ${fmt(c.at)} · Status: <b>${c.status}</b></p>
+  <div class="two"><div class="panel"><b>Doctor's letter</b><div class="letter" style="margin-top:8px">${c.photoKind==='pdf'?`<div style="padding:20px;text-align:center"><b>PDF attached</b><br>${h(c.photoName)}<br><span class="muted">In the real app the PDF opens here for checking.</span></div>`:`<img src="${c.photo}" alt="Photo of the doctor's letter">`}</div><p class="muted">${h(c.dr)} · ${h(c.surg)} · dated ${h(c.date)}</p></div>
+  <div style="display:flex;flex-direction:column;gap:14px"><div class="panel"><div style="font-size:20px;font-weight:700">${h(c.medLabel)}</div><div class="muted">${h(c.type)}</div>
+    <div class="cmp" style="margin-top:12px"><div><small class="muted">CURRENT</small><div>${oldTxt}</div></div><div class="new"><small style="color:var(--accent);font-weight:700">NEW</small><div>${newTxt}</div></div></div></div>
+  ${c.status!=='Pending approval'?`<div class="alert ${c.status==='Approved'?'ok':'err'}">${c.status} by ${h(U(c.approver).name)} at ${fmt(c.decisionAt)}${c.comment?': '+h(c.comment):''}</div>`:
+   block?`<div class="alert warn">${block}</div>`:
+  `<form class="panel" id="apform" data-id="${c.id}" novalidate><fieldset><legend>Check before approving (all required)</legend>
+    <label class="check" for="k1"><input id="k1" type="checkbox"><span>The letter is addressed to Oakwoods Care Group</span></label>
+    <label class="check" for="k2" style="margin-top:8px"><input id="k2" type="checkbox"><span>It is signed and dated by a doctor</span></label>
+    <label class="check" for="k3" style="margin-top:8px"><input id="k3" type="checkbox"><span>The new entry matches the letter exactly (medicine, strength, dose, times)</span></label></fieldset>
+    <label class="f" for="k-c">Comment (required if rejecting)<textarea id="k-c"></textarea></label>
+    <div id="k-err" class="alert err" hidden></div>
+    <div class="row"><span class="muted" style="max-width:40ch">Approving makes this the current prescription. In the demo it applies from the current demo time. The old version and all past records are kept.</span>
+    <span style="display:flex;gap:10px"><button class="btn danger" type="button" data-act="reject">Reject</button><button class="btn primary" type="submit">Approve</button></span></div></form>`}
+  </div></div>`;
+}
+function logView(){
+  return `<h1>Activity log</h1><p class="muted">Everything recorded in this demo, newest first. Entries are never edited or deleted; corrections are added as new entries. Event reports appear here for senior review.</p>
+  ${S.events.length?`<h2>Event reports for review</h2><div class="list">${S.events.map(e=>`<div class="panel"><b>${h(e.type)}</b> · ${h(person(e.pid).name)} · at ${h(e.time)} · reported by ${h(U(e.by).name)}<br>${h(e.what)}${e.done?`<br><span class="muted">Action so far: ${h(e.done)}</span>`:''}</div>`).join('')}</div>`:''}
+  ${S.slots.some(s=>s.entry&&s.entry.stockFlag)?`<h2>Stock discrepancies for review</h2><div class="list">${S.slots.filter(s=>s.entry&&s.entry.stockFlag).map(s=>`<div class="panel"><b>${h(person(s.pid).name)}</b> · ${h(planOf(s).name)} ${s.time} · counted ${s.entry.count}, expected ${s.entry.expected} · by ${h(U(s.entry.by).name)}</div>`).join('')}</div>`:''}
+  <h2>All activity</h2><div class="panel log">${S.log.map(l=>`<div><b>${fmt(l.at)}</b><span>${h(l.who)}</span><span>${h(l.text)}</span></div>`).join('')}</div>`;
+}
+
+// ---------- actions
+document.addEventListener('click',e=>{
+  const b=e.target.closest('[data-act]');if(!b)return;
+  const a=b.dataset.act;
+  if(a==='go'){view={name:b.dataset.view};render();}
+  else if(a==='signin'){view={name:'signin',back:view};render();}
+  else if(a==='as'){user=U(b.dataset.id);view=view.back&&view.back.name!=='signin'?view.back:{name:'today'};if(view.name==='approval'||view.name==='approvals'||view.name==='log'){if(!user.approver)view={name:'today'};}toast('Signed in as '+user.name);render();}
+  else if(a==='person'){view={name:'person',pid:b.dataset.pid};render();}
+  else if(a==='slot'){view={name:'record',slot:b.dataset.id};render();}
+  else if(a==='report'){view={name:'report',pid:b.dataset.pid};render();}
+  else if(a==='change'){view={name:'change',pid:b.dataset.pid};render();}
+  else if(a==='approval'){view={name:'approval',id:b.dataset.id};render();}
+  else if(a==='outcome'){b.parentElement.querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',x===b));
+    const oc=OC(b.dataset.val),sf=document.getElementById('r-stockf'),ns=document.getElementById('r-nstock');
+    if(sf)sf.hidden=!oc.uses; if(ns)ns.hidden=oc.code!=='N'; const wn=document.getElementById('r-wnote'); if(wn)wn.hidden=oc.code!=='W';}
+  else if(a==='addtime'){const rows=document.getElementById('c-rows');const used=[...rows.querySelectorAll('.c-time')].map(x=>x.value);const next=['13:00','15:00','18:00','20:30','22:00'].find(t=>!used.includes(t))||'12:00';rows.insertAdjacentHTML('beforeend',timeRow(rows.children.length,next));rows.lastElementChild.querySelector('input').focus();}
+  else if(a==='deltime'){const rows=document.getElementById('c-rows');if(rows.children.length>1)b.closest('.trow').remove();else toast('At least one time is needed. Use "Stop a medicine" to stop it.');}
+  else if(a==='medlist'){view={name:'medlist',pid:b.dataset.pid||null};render();}
+  else if(a==='print'){savePdf(view.pid);}
+  else if(a==='quickas'){user=U(b.dataset.id);toast('Signed in as '+user.name+'. Sign the second box.');render();setTimeout(()=>{const c=document.querySelector('canvas.sigpad[data-n="1"]');if(c)c.scrollIntoView({block:'center',behavior:'smooth'});},50);}
+  else if(a==='sigclear'){const c=document.querySelector(`canvas.sigpad[data-n="${b.dataset.n}"]`);if(c){c.getContext('2d').clearRect(0,0,c.width,c.height);delete c.dataset.drawn;}}
+  else if(a==='sign'){const k=Number(b.dataset.n),c=document.querySelector(`canvas.sigpad[data-n="${k}"]`),err=document.getElementById('sig-err-'+k);
+    const fail=m=>{err.textContent=m;err.hidden=false;err.scrollIntoView({block:'center',behavior:'smooth'});};
+    if(!c||!c.dataset.drawn)return fail('Sign in the box first.');
+    if(!document.getElementById('sig-ok-'+k).checked)return fail('Tick to confirm you have checked the list against the paper MAR.');
+    const ids=listPeople(view.pid).map(p=>p.id);
+    if(k===1&&ids.some(id=>{const f=sigFor(id,0);return f&&f.uid===user.id;}))return fail('The second signature must be a different person. Tap "Switch user" at the top and sign in as the night staff member.');
+    S.signoffs=S.signoffs||{};const img=c.toDataURL('image/png');
+    ids.forEach(id=>{let so=currentSignoff(id);if(!so)so=S.signoffs[id]={snap:snapKey(id),sigs:[]};if(!so.sigs[k])so.sigs[k]={uid:user.id,name:user.name,role:user.role,at:now,img};});
+    log(now,user.name,`${k?'Second':'First'} signature on medication list (${view.pid?person(view.pid).name:'all residents'})`);
+    toast(k?'Second signature saved. Both signatures are on the PDF.':'First signature saved. Now switch user for the second signature.');render();}
+  else if(a==='copylist'){const txt=medListText(view.pid);(navigator.clipboard?navigator.clipboard.writeText(txt):Promise.reject()).then(()=>toast('Medication list copied. Paste it into a document to save it.'),()=>{const ta=document.getElementById('ml-text');ta.hidden=false;ta.value=txt;ta.select();toast('Select all and copy the text shown.');});}
+  else if(a==='stock'){view={name:'stock',pid:b.dataset.pid,mode:b.dataset.mode};render();}
+  else if(a==='ctype'){b.parentElement.querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',x===b));const t=b.dataset.val;document.getElementById('c-type').value=t;
+    document.getElementById('c-existing').hidden=t==='Add a medicine';document.getElementById('c-new').hidden=t!=='Add a medicine';document.getElementById('c-sched').hidden=t==='Stop a medicine';}
+  else if(a==='reset'){now=13*60;document.getElementById('clock').value=String(now);seed();user=USERS[0];view={name:'today'};render();toast('Demo reset to 13:00');}
+  else if(a==='handover-sign'){S.handover.handedBy=user.id;S.handover.handedAt=now;log(now,user.name,'Signed day shift medication handover');toast('Handover signed. Now switch user to the night staff member.');render();}
+  else if(a==='csign'){
+    const id=b.dataset.id,s=S.slots.find(x=>x.id===id);
+    if(user.id===S.handover.handedBy){toast('The person handing over can\'t countersign. Switch user to the night staff member.');return;}
+    let action='';
+    if(!s.entry){const sel=document.getElementById('a-'+id);action=sel&&sel.value;if(!action){toast('Choose what you did about the unrecorded dose first.');sel&&sel.focus();return;}}
+    S.handover.signs[id]={by:user.id,at:now,action};
+    const p=person(s.pid),pl=planOf(s);
+    log(now,user.name,`Countersigned ${p.name} ${pl.name} ${s.time}${action?' · '+action:''}`);
+    render();
+  }
+  else if(a==='handover-done'){S.handover.done={by:user.id,at:now};log(now,user.name,'Completed day → night medication handover');toast('Handover completed');render();}
+  else if(a==='reject'){
+    const c=S.changes.find(x=>x.id===view.id),com=document.getElementById('k-c').value.trim(),err=document.getElementById('k-err');
+    if(!com){err.textContent='Add a comment explaining why the change is rejected.';err.hidden=false;err.scrollIntoView({block:'center',behavior:'smooth'});return;}
+    c.status='Rejected';c.approver=user.id;c.decisionAt=now;c.comment=com;
+    log(now,user.name,`Rejected prescription change for ${person(c.pid).name} (${c.medLabel}): ${com}`);toast('Change rejected');render();
+  }
+});
+
+document.addEventListener('change',e=>{
+  if(e.target.id==='clock'){const v=Number(e.target.value);
+    if(v<now){now=v;seed();toast('Clock moved back: the demo has restarted at '+fmt(v)+'.');}
+    else{now=v;applySeeds();}
+    render();}
+  if(e.target.id==='c-photo'){const f=e.target.files[0];if(!f)return;const prev=document.getElementById('c-prev');
+    const isPdf=f.type==='application/pdf'||/\.pdf$/i.test(f.name);
+    if(!isPdf&&!f.type.startsWith('image/')){prev.innerHTML='<span class="muted">That file type can\'t be used. Add a photo or a PDF.</span>';delete prev.dataset.src;return;}
+    const r=new FileReader();r.onerror=()=>{prev.innerHTML='<span class="muted">The file couldn\'t be read. Try again or use a different file.</span>';};
+    r.onload=()=>{prev.dataset.src=r.result;prev.dataset.kind=isPdf?'pdf':'image';prev.dataset.name=f.name;
+      prev.innerHTML=isPdf?`<div style="padding:20px;text-align:center"><b>PDF attached</b><br>${h(f.name)} · ${Math.max(1,Math.round(f.size/1024))} KB</div>`:`<img alt="Photo of the doctor's letter" src="${r.result}">`;};
+    r.readAsDataURL(f);}
+});
+
+document.addEventListener('submit',e=>{
+  e.preventDefault();
+  const f=e.target;
+  if(f.id==='recform'){
+    const s=S.slots.find(x=>x.id===f.dataset.id),err=document.getElementById('r-err');
+    const o=(f.querySelector('[data-act=outcome][aria-pressed=true]')||{}).dataset?.val;
+    const time=document.getElementById('r-time').value,altLoc=document.getElementById('r-alt').value.trim(),chart=paperRef(s,altLoc),row=document.getElementById('r-boxok').checked||altLoc?'confirmed':'',notes=document.getElementById('r-notes').value.trim(),self=document.getElementById('r-self').checked;
+    const late=now>mins(s.time)+WINDOW;
+    const msg=!o?'Choose what the paper MAR says.':!time?'Enter the time from the paper MAR.':!row?'Tick to confirm you have signed the box shown on the paper MAR, or say where the entry is.':(o!=='Given'||late)&&!notes?(late?'This is a late entry: add a note explaining the delay.':'Add a note with the reason.'):!self?'Tick to confirm you dealt with this dose and signed the paper MAR yourself.':'';
+    if(msg){err.textContent=msg;err.hidden=false;err.scrollIntoView({block:'center',behavior:'smooth'});return;}
+    if(s.entry){err.textContent='Already recorded by '+U(s.entry.by).name+'. Nothing was saved. Check the paper MAR.';err.hidden=false;err.scrollIntoView({block:'center',behavior:'smooth'});return;}
+    if(s.superseded){err.textContent='The prescription changed while this screen was open. Nothing was saved. Go back to the chart and check the current prescription.';err.hidden=false;err.scrollIntoView({block:'center',behavior:'smooth'});return;}
+    const oc=OC(o),pl=planOf(s),presc=pl.sched[s.time],countable=!!S.stock[s.order];
+    const qRaw=oc.uses?document.getElementById('r-qty').value.trim():'0',used=Number(qRaw);
+    const cEl=document.getElementById('r-count'),cRaw=cEl?cEl.value.trim():'';
+    const m2=oc.uses&&(qRaw===''||!(used>=0))?'Enter the amount given or destroyed.':o==='Given'&&used<=0?'Enter the dose given.':oc.uses&&countable&&!/^\d+$/.test(cRaw)?'Enter what is left as a whole number (tablets, capsules or ml).':o==='Given'&&used!==presc&&!notes?`The amount given (${used}) is different from the prescribed dose at this time (${doseUnit(presc,pl.unit)}). Add a note. If it was a mistake, also report it as an event.`:'';
+    if(m2){err.textContent=m2;err.hidden=false;err.scrollIntoView({block:'center',behavior:'smooth'});return;}
+    const count=oc.uses&&countable?Number(cRaw):null,expected=count!=null?balance(s.order)-used:null,stockFlag=isFlag(s.order,count,expected);
+    s.entry={outcome:o,by:user.id,actual:time,chart,row,notes,at:now,used,count,expected,stockFlag,seq:++S.seq};
+    const p=person(s.pid);
+    log(now,user.name,`Confirmed paper MAR: ${p.name} · ${pl.name} ${s.time} · ${oc.label} at ${time}${oc.uses?' · '+doseUnit(used,pl.unit):''}${count!=null?' · count '+count:''}${late?' · late entry':''}`);
+    if(stockFlag)log(now,'System',`Stock discrepancy: ${p.name} · ${pl.name}: counted ${count}, expected ${expected}. Shift leader to check.`);
+    if(o==='N')log(now,'System',`No stock: ${p.name} · ${pl.name} ${s.time}. Shift leader to be told now.`);
+    toast(stockFlag?`Saved. Count doesn't match (expected ${expected}): shift leader to check stock.`:o==='N'?'Saved. Tell the shift leader now: no stock.':'Saved: '+oc.short+' for '+pl.name+' '+s.time);
+    view={name:'person',pid:p.id};render();
+  }
+  if(f.id==='stform'){
+    const err=document.getElementById('st-err'),fail=m=>{err.textContent=m;err.hidden=false;err.scrollIntoView({block:'center',behavior:'smooth'});};
+    const type=f.dataset.mode,pid=f.dataset.pid,note=document.getElementById('st-note').value.trim();
+    if(type==='opened'){
+      const [order,volS]=document.getElementById('st-bottle').value.split('|'),vol=Number(volS),fate=document.getElementById('st-fate').value,dRaw=document.getElementById('st-disp').value.trim();
+      if(fate==='disposed'&&!/^\d+$/.test(dRaw))return fail('Enter roughly how much was left in the old bottle and disposed of (ml).');
+      const pl=S.plans.find(x=>x.order===order&&x.state==='Current'),before=liquidState(order).inUse;
+      S.stock[order].moves.push({at:now,type:'opened',vol,fate,disposedMl:fate==='disposed'?Number(dRaw):0,note,by:user.id,seq:++S.seq});
+      log(now,user.name,`New bottle opened: ${person(pid).name} · ${pl.name} · ${vol} ml bottle. Old bottle (about ${before||0} ml by the running level): ${fate==='empty'?'empty':'about '+dRaw+' ml disposed of'}${note?' · '+note:''}`);
+      if(fate==='empty'&&before>LIQ_TOL)log(now,'System',`Check: ${pl.name} for ${person(pid).name} was recorded as empty but the running level was about ${before} ml.`);
+      toast(`Saved: ${vol} ml bottle of ${pl.name} opened.`);view={name:'person',pid};render();return;
+    }
+    const order=document.getElementById('st-order').value,qRaw=document.getElementById('st-qty').value.trim(),from=document.getElementById('st-from').value;
+    const pl=S.plans.find(x=>x.order===order&&x.state==='Current'),liq=pl.unit==='ml',vEl=document.getElementById('st-vol'),vRaw=vEl?vEl.value.trim():'';
+    if(!/^\d+$/.test(qRaw)||Number(qRaw)<=0)return fail(liq?'Enter the number of bottles as a whole number.':'Enter the quantity as a whole number.');
+    if(liq&&(!/^\d+$/.test(vRaw)||Number(vRaw)<=0))return fail('For a liquid, enter the size of each bottle in ml (for example 200).');
+    if(from.startsWith('Other')&&!note)return fail('Add a note saying where the stock came from or went.');
+    const qty=Number(qRaw),vol=liq?Number(vRaw):null;
+    if(!S.stock[order])S.stock[order]=liq?{liquid:true,cf:null,unopened:[],moves:[]}:{cf:0,moves:[]};
+    if(liq&&type==='returned'){const have=liquidState(order).unopened.filter(v=>v===vol).length;if(have<qty)return fail(`Only ${have} unopened ${vol} ml bottle${have===1?' is':'s are'} recorded. Check the bottles and the size.`);}
+    S.stock[order].moves.push({at:now,type,qty,vol,from,note,by:user.id,seq:++S.seq});
+    const what=liq?`${qty} × ${vol} ml bottle${qty===1?'':'s'}`:`${qty} ${pl.unit}s`;
+    log(now,user.name,`Stock ${type}: ${person(pid).name} · ${pl.name} · ${what} · ${from}${note?' · '+note:''}`);
+    toast(`Saved: ${what} ${type}.${liq?'':' Balance now '+balance(order)+'.'}`);view={name:'person',pid};render();
+  }
+  if(f.id==='repform'){
+    const what=document.getElementById('e-what').value.trim(),err=document.getElementById('e-err');
+    if(!what){err.textContent='Describe what happened.';err.hidden=false;err.scrollIntoView({block:'center',behavior:'smooth'});return;}
+    const ev={pid:f.dataset.pid,type:document.getElementById('e-type').value,time:document.getElementById('e-time').value,what,done:document.getElementById('e-done').value.trim(),by:user.id,at:now};
+    S.events.unshift(ev);log(now,user.name,`Event report: ${ev.type} · ${person(ev.pid).name} (sent to shift leader and manager)`);
+    toast('Report sent to shift leader and manager');view={name:'person',pid:f.dataset.pid};render();
+  }
+  if(f.id==='chform'){
+    const pid=f.dataset.pid,type=document.getElementById('c-type').value,err=document.getElementById('c-err');
+    const g=id=>document.getElementById(id).value.trim();
+    const prevEl=document.getElementById('c-prev'),photo=prevEl.dataset.src,photoKind=prevEl.dataset.kind||'image',photoName=prevEl.dataset.name||'';
+    const rowsEls=[...document.querySelectorAll('#c-rows .trow')];
+    const rowsData=rowsEls.map(r=>({t:r.querySelector('.c-time').value,d:r.querySelector('.c-dosetxt').value.trim()}));
+    const times=rowsData.map(r=>r.t);
+    const sched={},doseText={};rowsData.forEach(r=>{sched[r.t]=parseFloat(r.d);doseText[r.t]=r.d;});
+    const dup=times.find((t,k)=>times.indexOf(t)!==k);
+    const badDose=rowsData.find(r=>!r.d||!/^\d+(\.\d+)?/.test(r.d));
+    const ld=document.getElementById('c-date').value;
+    let msg='';
+    if(type==='Add a medicine'&&(!g('c-name')||!g('c-strength')))msg='Enter the medicine name and strength.';
+    else if(type!=='Stop a medicine'&&badDose)msg=badDose.d?`Start each dose with a number, as in the letter (for example "1 tablet" or "10 ml"). "${badDose.d}" doesn't.`:`Enter the dose for ${badDose.t}.`;
+    else if(type!=='Stop a medicine'&&dup)msg=`${dup} is listed twice. Each time can only appear once.`;
+    else if(!g('c-dr')||!g('c-surg')||!ld)msg='Enter the doctor\'s name, surgery and the date on the letter.';
+    else if(ld>'2026-10-25')msg='The date on the letter can\'t be in the future.';
+    else if(!photo)msg='The doctor\'s letter is required. Add a photo, scan or PDF of it.';
+    else if(!document.getElementById('c-addr').checked)msg='The change can\'t be sent: the letter must be addressed to Oakwoods Care Group and signed and dated by the doctor.';
+    if(msg){err.textContent=msg;err.hidden=false;err.scrollIntoView({block:'center',behavior:'smooth'});return;}
+    let order=null,medLabel,oldVid=null;
+    if(type==='Add a medicine'){medLabel=g('c-name')+' '+g('c-strength');}
+    else{order=g('c-order');const pl=S.plans.find(x=>x.order===order&&x.state==='Current');medLabel=pl.name+' '+pl.strength;oldVid=pl.vid;
+      if(pendingFor(order)){err.textContent='A change for this medicine is already waiting for approval.';err.hidden=false;err.scrollIntoView({block:'center',behavior:'smooth'});return;}}
+    const c={id:'CHG-'+String(S.changes.length+1).padStart(3,'0'),pid,type,order,oldVid,medLabel,name:g('c-name'),strength:g('c-strength'),route:g('c-route')||'Oral',dose:times.map(t=>doseText[t]+' at '+t).join(', '),doseText,unitGuess:((rowsData[0]||{d:''}).d.replace(/^[\d.\s]+/,'').trim().toLowerCase().replace(/s$/,''))||'dose',times:times.sort((a,b)=>mins(a)-mins(b)),sched,dr:g('c-dr'),surg:g('c-surg'),date:ld?ld.split('-').reverse().join('/'):'',photo,photoKind,photoName,by:user.id,at:now,status:'Pending approval'};
+    S.changes.push(c);
+    log(now,user.name,`Prescription change sent for approval: ${person(pid).name} · ${type} · ${medLabel}`);
+    toast('Sent for approval. Current prescription stays until approved.');view={name:'person',pid};render();
+  }
+  if(f.id==='apform'){
+    const c=S.changes.find(x=>x.id===f.dataset.id),err=document.getElementById('k-err');
+    if(!['k1','k2','k3'].every(k=>document.getElementById(k).checked)){err.textContent='Tick all three checks before approving.';err.hidden=false;err.scrollIntoView({block:'center',behavior:'smooth'});return;}
+    applyChange(c);
+    c.status='Approved';c.approver=user.id;c.decisionAt=now;c.comment=document.getElementById('k-c').value.trim();
+    log(now,user.name,`Approved prescription change for ${person(c.pid).name} (${c.medLabel}). Second signature recorded.`);
+    toast('Approved. The chart now shows the new prescription.');render();
+  }
+});
+
+function applyChange(c){
+  const future=s=>!s.entry&&mins(s.time)>now;
+  if(c.type==='Add a medicine'){
+    const order='ORD-'+String(S.plans.length+10).padStart(2,'0');
+    const unit=c.unitGuess;
+    const pl=P(order,1,c.pid,c.name,c.strength,c.route,'',c.sched,unit);S.plans.push(pl);
+    c.times.filter(t=>mins(t)>now).forEach(t=>addSlot(pl,t));c.order=order;return;
+  }
+  const old=S.plans.find(x=>x.order===c.order&&x.state==='Current');
+  S.slots.filter(s=>s.order===c.order&&!s.superseded&&future(s)).forEach(s=>{s.superseded=true;s.key+='#superseded#'+s.vid;});
+  if(c.type==='Stop a medicine'){old.state='Stopped';return;}
+  old.state='Superseded';
+  // Old instructions are not carried over: they may contradict the new dose or times.
+  const pl=P(old.order,old.v+1,old.pid,old.name,old.strength,old.route,'',c.sched,old.unit);S.plans.push(pl);
+  c.times.filter(t=>mins(t)>now).forEach(t=>addSlot(pl,t));
+}
+
+(function(){const c=document.getElementById('clock');let o='';for(let m=6*60;m<=23*60;m+=60){o+=`<option value="${m}">Sun 25 Oct · ${fmt(m)}</option>`;if(m===20*60)o+=`<option value="${20*60+5}">Sun 25 Oct · 20:05 (handover)</option>`;}c.innerHTML=o;c.value=String(13*60);})();
+now=13*60;seed();user=USERS[0];view={name:'today'};render();
+})();
+</script>
+</body></html>
